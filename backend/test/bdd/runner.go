@@ -28,6 +28,7 @@ func runEpic(t *testing.T, epic string) {
 	testSuite := godog.TestSuite{
 		Name: "bdd/" + epic,
 		Options: &godog.Options{
+			Tags:     "@api",
 			Format:   godogFormat(),
 			Paths:    featurePaths(epic),
 			Output:   colors.Colored(os.Stdout),
