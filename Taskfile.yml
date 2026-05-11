@@ -57,13 +57,13 @@ tasks:
 
   test-short:
     desc: "Run short tests"
-    cmd: ./scripts/eval-all.sh "go test -p 8 -race -failfast -short ./..."
+    cmd: ./scripts/eval-all.sh "go test -p 8 -race -failfast -short ./backend/..."
 
   test-smoke:
     desc: "Run smoke tests"
     cmds:
       - |
-        ./scripts/eval.sh "go test -timeout 20m -v -failfast -tags smoke ./test/smoke/"
+        ./scripts/eval.sh "go test -timeout 20m -v -failfast -tags smoke ./backend/test/smoke/"
 
   test-bdd:
     desc: "Run BDD scenarios"
