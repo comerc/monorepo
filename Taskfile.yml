@@ -83,3 +83,13 @@ tasks:
   bdd-inventory:
     desc: "Group pending and undefined BDD steps by epic"
     cmd: python3 ./scripts/bdd_inventory.py "test/bdd-out.txt" > test/bdd-inventory.md
+
+  kill-port:
+    desc: "Kill specific port"
+    summary: |
+      Kill specific port.
+
+      EXAMPLE:
+        task kill-port -- 7171
+    cmds:
+      - lsof -ti:{{.CLI_ARGS}} | xargs kill -9

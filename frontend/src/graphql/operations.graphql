@@ -1,0 +1,33 @@
+mutation RequestEmailCode($email: String!) {
+  requestEmailCode(email: $email) {
+    accepted
+  }
+}
+
+mutation LoginWithEmailCode($email: String!, $code: String!) {
+  loginWithEmailCode(email: $email, code: $code) {
+    token
+    userID
+    email
+  }
+}
+
+mutation Logout {
+  logout {
+    revoked
+  }
+}
+
+query MyProfile {
+  myProfile {
+    userID
+    nickname
+  }
+}
+
+mutation SetNickname($nickname: String!) {
+  setNickname(nickname: $nickname) {
+    userID
+    nickname
+  }
+}

@@ -1,0 +1,88 @@
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #f5f7fb;
+}
+
+body.dark {
+  background: #000000;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f5f7fb;
+}
+
+body.dark .auth-page {
+  background: #000000;
+}
+
+.auth-theme-switcher {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-title {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.brand {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.app-header {
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.app-content {
+  margin: 24px;
+  min-height: 280px;
+}
+
+.page-section {
+  max-width: 720px;
+}
+
+.profile-card {
+  max-width: 480px;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.form-alert {
+  margin-bottom: 16px;
+}
