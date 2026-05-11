@@ -1,0 +1,4 @@
+backend/test/
+backend/gateway/
+backend/docker-compose.yml
+backend/Dockerfile

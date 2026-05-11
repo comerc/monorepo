@@ -4,20 +4,12 @@ FROM golang:${GO_VERSION}-alpine AS build
 
 WORKDIR /src
 
-COPY go.work ./
-COPY backend/auth/go.mod backend/auth/go.sum backend/auth/
-COPY backend/profile/go.mod backend/profile/go.sum backend/profile/
-COPY backend/test/bdd/go.mod backend/test/bdd/go.sum backend/test/bdd/
-COPY backend/user/go.mod backend/user/go.sum backend/user/
-COPY backend/gateway/go.mod backend/gateway/
-COPY test/smoke/go.mod test/smoke/
-
-RUN go work sync
-
-COPY . .
+COPY backend/. ./
 
 ARG SERVICE
-RUN CGO_ENABLED=0 go build -o /out/server ./backend/${SERVICE}/cmd/server
+WORKDIR /src/${SERVICE}
+RUN go mod download
+RUN CGO_ENABLED=0 go build -o /out/server ./cmd/server
 
 FROM alpine:3.22
 
