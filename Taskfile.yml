@@ -19,6 +19,21 @@ tasks:
     desc: "Regenerate mocks"
     cmd: ./scripts/eval-all.sh "go run github.com/vektra/mockery/v3@latest"
 
+  proto:
+    desc: "Regenerate backend gRPC contracts"
+    cmd: >-
+      protoc --go_out=. --go-grpc_out=.
+      --go_opt=paths=source_relative
+      --go-grpc_opt=paths=source_relative
+      backend/auth/pkg/grpc/auth.proto
+      backend/user/pkg/grpc/user.proto
+      backend/profile/pkg/grpc/profile.proto
+
+  gateway-compose:
+    desc: "Compose local Cosmo router execution config"
+    dir: backend/gateway
+    cmd: npx wgc router compose -i router-compose.yaml -o router.json
+
   lint:
     desc: "Run linters"
     cmds:
@@ -26,21 +41,25 @@ tasks:
         ROOT="$(pwd)"
         ./scripts/eval-all.sh "bash '$ROOT/scripts/lint.sh'"
 
-  unit:
-    desc: "Run unit tests"
-    cmd: ./scripts/eval-all.sh "go test -p 8 -race -failfast ./..."
+  test-clean:
+    desc: "Clean testcache"
+    cmd: go clean -testcache
 
-  smoke:
+  test-short:
+    desc: "Run short tests"
+    cmd: ./scripts/eval-all.sh "go test -p 8 -race -failfast -short ./..."
+
+  test-smoke:
     desc: "Run smoke tests"
     cmds:
       - |
-        ./scripts/eval.sh "go test -timeout 20m -p 1 -v -failfast -tags smoke ./test/smoke/"
+        ./scripts/eval.sh "go test -timeout 20m -v -failfast -tags smoke ./test/smoke/"
 
-  bdd:
+  test-bdd:
     desc: "Run BDD scenarios"
     cmds:
       - |
-        ./scripts/eval.sh "go test -timeout 20m -p 1 -v -failfast -tags bdd ./test/bdd/suite/"
+        ./scripts/eval.sh "go test -timeout 20m -v -failfast -tags bdd ./test/bdd/"
 
   bdd-out:
     desc: "Show pending and undefined BDD steps"
@@ -48,13 +67,9 @@ tasks:
       BDD_GODOG_FORMAT: events
     cmds:
       - |
-        go test -timeout 20m -p 1 -v -tags bdd ./test/bdd/... 2>&1 | jq -Rr \
+        go test -timeout 20m -v -tags bdd ./test/bdd/ 2>&1 | jq -Rr \
           'fromjson? | select(.event == "TestStepFinished" and (.status == "pending" or .status == "undefined")) | [.status, .location] | @tsv' > test/bdd-out.txt
 
   bdd-inventory:
     desc: "Group pending and undefined BDD steps by epic"
-    cmd: python3 ./scripts/bdd_inventory.py "bdd-out.txt" > test/bdd-inventory.md
-
-  test-clean:
-    desc: "Clean testcache"
-    cmd: go clean -testcache
+    cmd: python3 ./scripts/bdd_inventory.py "test/bdd-out.txt" > test/bdd-inventory.md

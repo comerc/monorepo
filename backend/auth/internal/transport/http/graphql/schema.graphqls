@@ -1,0 +1,26 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@shareable"])
+
+type Query {
+  authStatus: String! @shareable
+}
+
+type Mutation {
+  requestEmailCode(email: String!): RequestEmailCodePayload!
+  loginWithEmailCode(email: String!, code: String!): LoginPayload!
+  logout: LogoutPayload!
+}
+
+type RequestEmailCodePayload {
+  accepted: Boolean!
+}
+
+type LoginPayload {
+  token: String!
+  userID: ID!
+  email: String!
+}
+
+type LogoutPayload {
+  revoked: Boolean!
+}

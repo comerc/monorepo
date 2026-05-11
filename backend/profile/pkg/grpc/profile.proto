@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package profile.v1;
+
+option go_package = "github.com/pure-golang/monorepo/backend/profile/pkg/grpc;profilepb";
+
+service ProfileService {
+  rpc GetProfile(GetProfileRequest) returns (ProfileResponse);
+  rpc SetNickname(SetNicknameRequest) returns (ProfileResponse);
+}
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message SetNicknameRequest {
+  string user_id = 1;
+  string nickname = 2;
+}
+
+message ProfileResponse {
+  string user_id = 1;
+  string nickname = 2;
+}

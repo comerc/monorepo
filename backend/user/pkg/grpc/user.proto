@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/pure-golang/monorepo/backend/user/pkg/grpc;userpb";
+
+service UserService {
+  rpc GetOrCreateUser(GetOrCreateUserRequest) returns (UserResponse);
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+}
+
+message GetOrCreateUserRequest {
+  string email = 1;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message UserResponse {
+  string user_id = 1;
+  string email = 2;
+}

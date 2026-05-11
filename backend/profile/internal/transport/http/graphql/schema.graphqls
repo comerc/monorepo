@@ -1,0 +1,16 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@shareable"])
+
+type Profile @key(fields: "userID") {
+  userID: ID!
+  nickname: String
+}
+
+type Query {
+  profileStatus: String! @shareable
+  myProfile: Profile!
+}
+
+type Mutation {
+  setNickname(nickname: String!): Profile!
+}

@@ -1,20 +1,18 @@
-module github.com/pure-golang/monorepo/backend/profile
+module github.com/pure-golang/monorepo/backend/user
 
 go 1.26.1
 
 require (
-	github.com/99designs/gqlgen v0.17.90
+	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/pure-golang/adapters v0.0.0-20260420080457-e4d5ad6634a3
 	github.com/pure-golang/platform v0.0.0-20260420065046-5eda790b3be9
-	github.com/vektah/gqlparser/v2 v2.5.33
 	golang.org/x/sync v0.20.0
 	google.golang.org/grpc v1.81.0
 	google.golang.org/protobuf v1.36.11
 )
 
 require (
-	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -22,13 +20,9 @@ require (
 	github.com/exaring/otelpgx v0.10.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/golang-cz/devslog v0.0.15 // indirect
-	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grafana/regexp v0.0.0-20240518133315-a468a5bfb3bc // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -47,7 +41,6 @@ require (
 	github.com/prometheus/procfs v0.17.0 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/redis/go-redis/v9 v9.17.2 // indirect
-	github.com/sosodev/duration v1.4.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.57.0 // indirect

@@ -1,0 +1,12 @@
+template: testify
+template-data:
+  unroll-variadic: true
+filename: "{{ .InterfaceName | snakecase }}.go"
+dir: "{{ .InterfaceDir }}/mocks"
+structname: "{{ .InterfaceName | firstUpper }}"
+pkgname: mocks
+packages:
+  github.com/pure-golang/monorepo/backend/auth/internal/service:
+    config:
+      all: true
+

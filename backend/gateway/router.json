@@ -1,0 +1,192 @@
+{
+  "engineConfig": {
+    "defaultFlushInterval": "500",
+    "datasourceConfigurations": [
+      {
+        "kind": "GRAPHQL",
+        "rootNodes": [
+          {
+            "typeName": "Query",
+            "fieldNames": [
+              "authStatus"
+            ]
+          },
+          {
+            "typeName": "Mutation",
+            "fieldNames": [
+              "requestEmailCode",
+              "loginWithEmailCode",
+              "logout"
+            ]
+          }
+        ],
+        "childNodes": [
+          {
+            "typeName": "RequestEmailCodePayload",
+            "fieldNames": [
+              "accepted"
+            ]
+          },
+          {
+            "typeName": "LoginPayload",
+            "fieldNames": [
+              "token",
+              "userID",
+              "email"
+            ]
+          },
+          {
+            "typeName": "LogoutPayload",
+            "fieldNames": [
+              "revoked"
+            ]
+          }
+        ],
+        "overrideFieldPathFromAlias": true,
+        "customGraphql": {
+          "fetch": {
+            "url": {
+              "staticVariableContent": "http://localhost:8081/graphql"
+            },
+            "method": "POST",
+            "body": {},
+            "baseUrl": {},
+            "path": {}
+          },
+          "subscription": {
+            "enabled": true,
+            "url": {
+              "staticVariableContent": "http://localhost:8081/graphql"
+            },
+            "protocol": "GRAPHQL_SUBSCRIPTION_PROTOCOL_WS",
+            "websocketSubprotocol": "GRAPHQL_WEBSOCKET_SUBPROTOCOL_AUTO"
+          },
+          "federation": {
+            "enabled": true,
+            "serviceSdl": "extend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@shareable\"])\n\ntype Query {\n  authStatus: String! @shareable\n}\n\ntype Mutation {\n  requestEmailCode(email: String!): RequestEmailCodePayload!\n  loginWithEmailCode(email: String!, code: String!): LoginPayload!\n  logout: LogoutPayload!\n}\n\ntype RequestEmailCodePayload {\n  accepted: Boolean!\n}\n\ntype LoginPayload {\n  token: String!\n  userID: ID!\n  email: String!\n}\n\ntype LogoutPayload {\n  revoked: Boolean!\n}\n"
+          },
+          "upstreamSchema": {
+            "key": "ef04b09df55040ba79aa5fd5f58fec3dabd9604a"
+          }
+        },
+        "requestTimeoutSeconds": "10",
+        "id": "0"
+      },
+      {
+        "kind": "GRAPHQL",
+        "rootNodes": [
+          {
+            "typeName": "Profile",
+            "fieldNames": [
+              "userID",
+              "nickname"
+            ]
+          },
+          {
+            "typeName": "Query",
+            "fieldNames": [
+              "profileStatus",
+              "myProfile"
+            ]
+          },
+          {
+            "typeName": "Mutation",
+            "fieldNames": [
+              "setNickname"
+            ]
+          }
+        ],
+        "overrideFieldPathFromAlias": true,
+        "customGraphql": {
+          "fetch": {
+            "url": {
+              "staticVariableContent": "http://localhost:8082/graphql"
+            },
+            "method": "POST",
+            "body": {},
+            "baseUrl": {},
+            "path": {}
+          },
+          "subscription": {
+            "enabled": true,
+            "url": {
+              "staticVariableContent": "http://localhost:8082/graphql"
+            },
+            "protocol": "GRAPHQL_SUBSCRIPTION_PROTOCOL_WS",
+            "websocketSubprotocol": "GRAPHQL_WEBSOCKET_SUBPROTOCOL_AUTO"
+          },
+          "federation": {
+            "enabled": true,
+            "serviceSdl": "extend schema\n  @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\", \"@shareable\"])\n\ntype Profile @key(fields: \"userID\") {\n  userID: ID!\n  nickname: String\n}\n\ntype Query {\n  profileStatus: String! @shareable\n  myProfile: Profile!\n}\n\ntype Mutation {\n  setNickname(nickname: String!): Profile!\n}\n"
+          },
+          "upstreamSchema": {
+            "key": "f1fc3131349c6146643f431f3f0db6d967f3afee"
+          }
+        },
+        "requestTimeoutSeconds": "10",
+        "id": "1",
+        "keys": [
+          {
+            "typeName": "Profile",
+            "selectionSet": "userID"
+          }
+        ]
+      }
+    ],
+    "fieldConfigurations": [
+      {
+        "typeName": "Mutation",
+        "fieldName": "requestEmailCode",
+        "argumentsConfiguration": [
+          {
+            "name": "email",
+            "sourceType": "FIELD_ARGUMENT"
+          }
+        ]
+      },
+      {
+        "typeName": "Mutation",
+        "fieldName": "loginWithEmailCode",
+        "argumentsConfiguration": [
+          {
+            "name": "email",
+            "sourceType": "FIELD_ARGUMENT"
+          },
+          {
+            "name": "code",
+            "sourceType": "FIELD_ARGUMENT"
+          }
+        ]
+      },
+      {
+        "typeName": "Mutation",
+        "fieldName": "setNickname",
+        "argumentsConfiguration": [
+          {
+            "name": "nickname",
+            "sourceType": "FIELD_ARGUMENT"
+          }
+        ]
+      }
+    ],
+    "graphqlSchema": "schema {\n  query: Query\n  mutation: Mutation\n}\n\ntype Query {\n  authStatus: String!\n  profileStatus: String!\n  myProfile: Profile!\n}\n\ntype Mutation {\n  requestEmailCode(email: String!): RequestEmailCodePayload!\n  loginWithEmailCode(email: String!, code: String!): LoginPayload!\n  logout: LogoutPayload!\n  setNickname(nickname: String!): Profile!\n}\n\ntype RequestEmailCodePayload {\n  accepted: Boolean!\n}\n\ntype LoginPayload {\n  token: String!\n  userID: ID!\n  email: String!\n}\n\ntype LogoutPayload {\n  revoked: Boolean!\n}\n\ntype Profile {\n  userID: ID!\n  nickname: String\n}",
+    "stringStorage": {
+      "ef04b09df55040ba79aa5fd5f58fec3dabd9604a": "schema {\n  query: Query\n  mutation: Mutation\n}\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @shareable repeatable on FIELD_DEFINITION | OBJECT\n\ntype LoginPayload {\n  email: String!\n  token: String!\n  userID: ID!\n}\n\ntype LogoutPayload {\n  revoked: Boolean!\n}\n\ntype Mutation {\n  loginWithEmailCode(code: String!, email: String!): LoginPayload!\n  logout: LogoutPayload!\n  requestEmailCode(email: String!): RequestEmailCodePayload!\n}\n\ntype Query {\n  authStatus: String! @shareable\n}\n\ntype RequestEmailCodePayload {\n  accepted: Boolean!\n}\n\nscalar link__Import\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}",
+      "f1fc3131349c6146643f431f3f0db6d967f3afee": "schema {\n  query: Query\n  mutation: Mutation\n}\n\ndirective @key(fields: openfed__FieldSet!, resolvable: Boolean = true) repeatable on INTERFACE | OBJECT\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @shareable repeatable on FIELD_DEFINITION | OBJECT\n\ntype Mutation {\n  setNickname(nickname: String!): Profile!\n}\n\ntype Profile @key(fields: \"userID\") {\n  nickname: String\n  userID: ID!\n}\n\ntype Query {\n  myProfile: Profile!\n  profileStatus: String! @shareable\n}\n\nscalar link__Import\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar openfed__FieldSet"
+    }
+  },
+  "version": "00000000-0000-0000-0000-000000000000",
+  "subgraphs": [
+    {
+      "id": "0",
+      "name": "auth",
+      "routingUrl": "http://localhost:8081/graphql"
+    },
+    {
+      "id": "1",
+      "name": "profile",
+      "routingUrl": "http://localhost:8082/graphql"
+    }
+  ],
+  "compatibilityVersion": "1:0.58.3"
+}
