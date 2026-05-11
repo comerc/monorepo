@@ -234,7 +234,7 @@ func (s *Stack) startServices(ctx context.Context) error {
 	}
 
 	profileProc, err := s.startProcess("profile", "./backend/profile/cmd/server", append(common,
-		"AUTH_GRPC_ADDR=127.0.0.1:"+authGRPC,
+		"USER_GRPC_ADDR=127.0.0.1:"+userGRPC,
 		"WEBSERVER_HOST=127.0.0.1",
 		"WEBSERVER_PORT="+profileHTTP,
 		"GRPC_HOST=127.0.0.1",
@@ -289,11 +289,23 @@ execution_config:
     path: "router.json"
     watch: false
 
+authentication:
+  jwt:
+    jwks:
+      - secret: "${AUTH_JWT_SECRET}"
+        header_key_id: "auth"
+        symmetric_algorithm: HS256
+    header_name: Authorization
+    header_value_prefix: Bearer
+
 headers:
   all:
     request:
       - op: "propagate"
         named: Authorization
+      - op: "set"
+        name: "X-User-ID"
+        expression: "request.auth.isAuthenticated ? request.auth.claims.sub : ''"
 `, gatewayHTTP)
 	configPath := filepath.Join(workDir, "config.yaml")
 	if err := writeTempFile(configPath, []byte(config)); err != nil {
@@ -305,7 +317,9 @@ headers:
 		return nil, err
 	}
 
-	proc, err := s.startProcessInDir("gateway", workDir, routerBin, []string{"-config", configPath}, nil)
+	proc, err := s.startProcessInDir("gateway", workDir, routerBin, []string{"-config", configPath}, []string{
+		"AUTH_JWT_SECRET=bdd-secret",
+	})
 	if err != nil {
 		return nil, err
 	}

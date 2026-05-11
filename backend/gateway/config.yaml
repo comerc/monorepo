@@ -13,8 +13,20 @@ execution_config:
     path: "/config/router.json"
     watch: false
 
+authentication:
+  jwt:
+    jwks:
+      - secret: "${AUTH_JWT_SECRET}"
+        header_key_id: "auth"
+        symmetric_algorithm: HS256
+    header_name: Authorization
+    header_value_prefix: Bearer
+
 headers:
   all:
     request:
       - op: "propagate"
         named: Authorization
+      - op: "set"
+        name: "X-User-ID"
+        expression: "request.auth.isAuthenticated ? request.auth.claims.sub : ''"

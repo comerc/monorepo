@@ -10,7 +10,7 @@
 // Конфигурация:
 //
 //	ENVIRONMENT    — окружение приложения (default: development)
-//	AUTH_GRPC_ADDR — адрес auth-сервиса (default: localhost:50052)
+//	USER_GRPC_ADDR — адрес user-сервиса (default: localhost:50051)
 //	POSTGRES_*     — параметры подключения к PostgreSQL из adapters/db/pg/pgx
 //	REDIS_*        — параметры подключения к Redis из adapters/kv/redis
 //	RABBITMQ_URL   — строка подключения к RabbitMQ (required)

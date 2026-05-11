@@ -15,7 +15,7 @@ import (
 
 // SetNickname is the resolver for the setNickname field.
 func (r *mutationResolver) SetNickname(ctx context.Context, nickname string) (*model.Profile, error) {
-	user, err := r.authService.ValidateToken(ctx, authTokenFromContext(ctx))
+	user, err := r.userService.GetUser(ctx, userIDFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (r *queryResolver) ProfileStatus(ctx context.Context) (string, error) {
 
 // MyProfile is the resolver for the myProfile field.
 func (r *queryResolver) MyProfile(ctx context.Context) (*model.Profile, error) {
-	user, err := r.authService.ValidateToken(ctx, authTokenFromContext(ctx))
+	user, err := r.userService.GetUser(ctx, userIDFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}

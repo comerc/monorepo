@@ -2,7 +2,7 @@
 //
 // Использование:
 //
-//	resolver := resolvers.New(profileService, authService)
+//	resolver := resolvers.New(profileService, userService)
 //
 // Конфигурация:
 //

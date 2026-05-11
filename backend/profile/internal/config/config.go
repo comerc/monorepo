@@ -12,7 +12,7 @@ import (
 // Config описывает конфигурацию profile-сервиса из переменных окружения.
 type Config struct {
 	Environment string `envconfig:"ENVIRONMENT" default:"development"`
-	AuthGRPC    string `envconfig:"AUTH_GRPC_ADDR" default:"localhost:50052"`
+	UserGRPC    string `envconfig:"USER_GRPC_ADDR" default:"localhost:50051"`
 	Monitoring  monitoring.Config
 	HTTPServer  ahttp.Config
 	GRPCServer  agrpc.Config

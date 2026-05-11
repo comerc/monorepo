@@ -158,6 +158,7 @@ func (s *Service) signToken(tokenID string, user *domain.User) (string, error) {
 		"email": user.Email,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token.Header["kid"] = "auth"
 	return token.SignedString([]byte(s.config.JWTSecret))
 }
 

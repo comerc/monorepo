@@ -11,17 +11,17 @@ type profileService interface {
 	SetNickname(ctx context.Context, userID string, nickname string) (*domain.Profile, error)
 }
 
-type authService interface {
-	ValidateToken(ctx context.Context, token string) (*domain.AuthUser, error)
+type userService interface {
+	GetUser(ctx context.Context, userID string) (*domain.User, error)
 }
 
 // Resolver связывает GraphQL-схему с profile-сервисом.
 type Resolver struct {
 	profileService profileService
-	authService    authService
+	userService    userService
 }
 
 // New создаёт resolver с внедрёнными зависимостями.
-func New(profileService profileService, authService authService) *Resolver {
-	return &Resolver{profileService: profileService, authService: authService}
+func New(profileService profileService, userService userService) *Resolver {
+	return &Resolver{profileService: profileService, userService: userService}
 }

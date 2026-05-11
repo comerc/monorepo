@@ -1,17 +1,17 @@
-// Package auth реализует gRPC-клиент auth-сервиса.
+// Package user реализует gRPC-клиент user-сервиса.
 //
 // Использование:
 //
-//	client, err := auth.New("localhost:50052")
+//	client, err := user.New("localhost:50051")
 //	defer client.Close()
 //
 // Конфигурация:
 //
-//	AUTH_GRPC_ADDR — адрес auth-сервиса.
+//	USER_GRPC_ADDR — адрес user-сервиса.
 //
 // Ограничения:
 //
 //   - Потокобезопасность: да.
 //   - Конструктор не выполняет сетевой запрос.
 //   - Close обязателен для освобождения gRPC-соединения.
-package auth
+package user

@@ -12,5 +12,5 @@
 // Ограничения:
 //
 //   - HTTP-транспорт не содержит бизнес-логики.
-//   - Authorization header переносится в request context для резолверов.
+//   - X-User-ID header переносится в request context для резолверов.
 package http

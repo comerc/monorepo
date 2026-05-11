@@ -14,8 +14,8 @@ type Profile struct {
 	Nickname *string
 }
 
-// AuthUser описывает пользователя, проверенного auth-сервисом.
-type AuthUser struct {
+// User описывает пользователя, полученного от user-сервиса.
+type User struct {
 	UserID string
 	Email  string
 }

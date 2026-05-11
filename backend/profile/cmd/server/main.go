@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pure-golang/monorepo/backend/profile/internal/config"
-	"github.com/pure-golang/monorepo/backend/profile/internal/infra/auth"
+	"github.com/pure-golang/monorepo/backend/profile/internal/infra/user"
 	"github.com/pure-golang/monorepo/backend/profile/internal/repo"
 	"github.com/pure-golang/monorepo/backend/profile/internal/service"
 	tgrpc "github.com/pure-golang/monorepo/backend/profile/internal/transport/grpc"
@@ -86,13 +86,13 @@ func run() error {
 		return fmt.Errorf("failed to connect to rabbitmq: %w", err)
 	}
 
-	authClient, err := auth.New(cfg.AuthGRPC)
+	userClient, err := user.New(cfg.UserGRPC)
 	if err != nil {
-		return fmt.Errorf("failed to create auth grpc client: %w", err)
+		return fmt.Errorf("failed to create user grpc client: %w", err)
 	}
 	defer func() {
-		if err := authClient.Close(); err != nil {
-			logger.Error("Failed to close auth grpc client", slog.Any("err", err))
+		if err := userClient.Close(); err != nil {
+			logger.Error("Failed to close user grpc client", slog.Any("err", err))
 		}
 	}()
 
@@ -103,7 +103,7 @@ func run() error {
 	profileService := service.New(profileRepo)
 
 	mux := http.NewServeMux()
-	thttp.New(resolvers.New(profileService, authClient)).EnrichRoutes(mux)
+	thttp.New(resolvers.New(profileService, userClient)).EnrichRoutes(mux)
 	handlerWithMiddleware := amiddleware.Chain(
 		mux,
 		amiddleware.Monitoring(),

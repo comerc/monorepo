@@ -2,7 +2,6 @@ package http
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -26,13 +25,12 @@ func (t *Transport) EnrichRoutes(mux *http.ServeMux) {
 	srv := handler.NewDefaultServer(
 		transportgraphql.NewExecutableSchema(transportgraphql.Config{Resolvers: t.resolver}),
 	)
-	mux.Handle("POST /graphql", t.withAuthToken(srv))
+	mux.Handle("POST /graphql", t.withUserID(srv))
 	mux.Handle("GET /playground", playground.Handler("Profile GraphQL", "/graphql"))
 }
 
-func (t *Transport) withAuthToken(next http.Handler) http.Handler {
+func (t *Transport) withUserID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
-		next.ServeHTTP(w, r.WithContext(t.resolver.WithAuthToken(r.Context(), token)))
+		next.ServeHTTP(w, r.WithContext(t.resolver.WithUserID(r.Context(), r.Header.Get("X-User-ID"))))
 	})
 }
