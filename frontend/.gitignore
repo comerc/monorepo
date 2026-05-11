@@ -18,6 +18,7 @@ coverage/
 playwright-report/
 test-results/
 .playwright-cli/
+test/bdd/.features-gen/
 
 # Logs
 *.log

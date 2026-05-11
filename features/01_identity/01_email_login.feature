@@ -20,3 +20,11 @@ Feature: Вход по email
     Given пользователь вошёл по email "user@example.com"
     When пользователь выходит из системы
     Then выданный JWT-токен больше не действует
+
+  @browser
+  Scenario: 04_login_with_email_code_in_browser
+    Given пользователь находится на странице входа
+    When пользователь запрашивает код доступа через браузер для email "user@example.com"
+    Then форма входа ожидает код доступа для email "user@example.com"
+    When пользователь вводит код доступа "1234" через браузер
+    Then пользователь видит страницу профиля

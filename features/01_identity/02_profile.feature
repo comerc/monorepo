@@ -4,7 +4,7 @@ Feature: Профиль пользователя
   Я хочу указать nickname в своём профиле
   Чтобы другие части продукта могли показывать моё публичное имя
 
-  @api
+  @api @browser
   Scenario: 01_set_unique_nickname
     Given пользователь вошёл по email "user@example.com"
     When пользователь указывает nickname "aka"
