@@ -2,7 +2,7 @@
 
 ## Контекст
 
-Монорепозиторий содержит identity-срез из `user`, `auth`, `profile` и локального `gateway`. Основной внешний интерфейс: federated GraphQL через `gateway`; внутренние интерфейсы: GraphQL у `auth`/`profile`, gRPC у `user`/`auth`/`profile`. Инфраструктурные зависимости BDD-слоя: PostgreSQL, Redis, RabbitMQ, Cosmo Router и тестовый SMTP capture внутри `test/bdd`.
+Монорепозиторий содержит identity-срез из `user`, `auth`, `profile` и локального `gateway`. Основной внешний интерфейс: federated GraphQL через `gateway`; внутренние интерфейсы: GraphQL у `auth`/`profile`, gRPC у `user`/`auth`/`profile`. Инфраструктурные зависимости BDD-слоя: PostgreSQL, Redis, RabbitMQ, Cosmo Router и тестовый SMTP capture внутри `backend/test/bdd`.
 
 **Архитектура:**
 - `backend/auth` — passwordless-аутентификация по email-коду, JWT и logout.
@@ -13,7 +13,7 @@
 **Структура тестов:**
 - `backend/**/*_test.go` — юнит-тесты рядом с исходниками.
 - `test/integration/*_test.go` — интеграционные тесты, сейчас отсутствуют.
-- `test/bdd/NN_epic/*.feature` + `test/bdd/*.go` — BDD-тесты через godog.
+- `features/NN_epic/*.feature` + `backend/test/bdd/*.go` — API BDD-тесты через godog.
 - `test/e2e/*_test.go` — e2e-тесты, сейчас отсутствуют.
 - `test/smoke/*_test.go` — smoke-слой зарезервирован, тестов сейчас нет.
 
@@ -27,7 +27,7 @@
 | `backend/auth/internal/transport/http` | Нет | Через BDD identity |
 | `backend/user/internal/service` | Нет | Через BDD identity |
 | `backend/profile/internal/service` | Нет | Через BDD identity |
-| `test/bdd/01_identity` | Не применимо | BDD |
+| `features/01_identity` | Не применимо | API BDD |
 | `test/smoke` | Нет | Smoke-слой зарезервирован |
 
 ---
@@ -59,14 +59,14 @@
 
 ---
 
-## BDD-тесты (test/bdd/)
+## BDD-тесты (features/ + backend/test/bdd/)
 
 Требуют: Docker, PostgreSQL, Redis, RabbitMQ и Cosmo Router. Пакет выбирается через build tag `bdd`. Пользовательские шаги обращаются только к общему federation `/graphql` gateway.
 
-### Identity (`test/bdd/01_identity`)
+### Identity (`features/01_identity`)
 
-Feature: `test/bdd/01_identity/01_email_login.feature`  
-Steps: `test/bdd/steps_01_identity.go`
+Feature: `features/01_identity/01_email_login.feature`  
+Steps: `backend/test/bdd/steps_01_identity.go`
 
 | ID | Сценарий | Статус |
 |----|----------|--------|
@@ -74,8 +74,8 @@ Steps: `test/bdd/steps_01_identity.go`
 | BDD-IDENTITY-002 | `02_login_with_email_code` | Активен |
 | BDD-IDENTITY-003 | `03_logout_revokes_token` | Активен |
 
-Feature: `test/bdd/01_identity/02_profile.feature`  
-Steps: `test/bdd/steps_01_identity.go`
+Feature: `features/01_identity/02_profile.feature`  
+Steps: `backend/test/bdd/steps_01_identity.go`
 
 | ID | Сценарий | Статус |
 |----|----------|--------|

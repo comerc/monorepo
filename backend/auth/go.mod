@@ -7,6 +7,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/pure-golang/adapters v0.0.0-20260420080457-e4d5ad6634a3
+	github.com/pure-golang/monorepo/backend/user v0.0.0
 	github.com/pure-golang/platform v0.0.0-20260420065046-5eda790b3be9
 	github.com/stretchr/testify v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.33
@@ -74,3 +75,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/pure-golang/monorepo/backend/user => ../user

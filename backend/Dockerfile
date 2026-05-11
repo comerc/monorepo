@@ -7,9 +7,9 @@ WORKDIR /src
 COPY go.work ./
 COPY backend/auth/go.mod backend/auth/go.sum backend/auth/
 COPY backend/profile/go.mod backend/profile/go.sum backend/profile/
+COPY backend/test/bdd/go.mod backend/test/bdd/go.sum backend/test/bdd/
 COPY backend/user/go.mod backend/user/go.sum backend/user/
 COPY backend/gateway/go.mod backend/gateway/
-COPY test/bdd/go.mod test/bdd/go.sum test/bdd/
 COPY test/smoke/go.mod test/smoke/
 
 RUN go work sync

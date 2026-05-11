@@ -56,4 +56,4 @@ Scenario: 01_successful_email_login
 
 - `.feature` вне `features/NN_epic/`.
 - Runner-owned feature files: `.feature` внутри `backend/test/bdd/`, `frontend/test/bdd/` или корневого `test/bdd/`.
-- Дополнительный `features/` внутри runner-а: `frontend/test/bdd/features/`.
+- Дополнительный `features/` внутри runner-а: `backend/test/bdd/features/`, `frontend/test/bdd/features/`.

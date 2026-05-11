@@ -1,4 +1,4 @@
-module github.com/pure-golang/monorepo/test/bdd
+module github.com/pure-golang/monorepo/backend/test/bdd
 
 go 1.26.1
 

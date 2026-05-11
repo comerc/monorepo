@@ -6,11 +6,11 @@
 //
 // Пакет содержит общий runner для BDD-эпиков:
 //
-//	go test -tags bdd ./test/bdd/
+//	go test -tags bdd ./backend/test/bdd/
 //
 // TestMain поднимает общий Stack один раз на весь BDD-прогон. Каждый эпик
 // запускается отдельным Test* в этом пакете и использует feature-файлы из
-// test/bdd/NN_*.
+// features/NN_*.
 //
 // # Конфигурация
 //

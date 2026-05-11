@@ -69,7 +69,7 @@ tasks:
     desc: "Run BDD scenarios"
     cmds:
       - |
-        ./scripts/eval.sh "go test -timeout 20m -v -failfast -tags bdd ./test/bdd/"
+        ./scripts/eval.sh "go test -timeout 20m -v -failfast -tags bdd ./backend/test/bdd/"
 
   bdd-out:
     desc: "Show pending and undefined BDD steps"
@@ -77,12 +77,12 @@ tasks:
       BDD_GODOG_FORMAT: events
     cmds:
       - |
-        go test -timeout 20m -v -tags bdd ./test/bdd/ 2>&1 | jq -Rr \
-          'fromjson? | select(.event == "TestStepFinished" and (.status == "pending" or .status == "undefined")) | [.status, .location] | @tsv' > test/bdd-out.txt
+        go test -timeout 20m -v -tags bdd ./backend/test/bdd/ 2>&1 | jq -Rr \
+          'fromjson? | select(.event == "TestStepFinished" and (.status == "pending" or .status == "undefined")) | [.status, .location] | @tsv' > backend/test/bdd-out.txt
 
   bdd-inventory:
     desc: "Group pending and undefined BDD steps by epic"
-    cmd: python3 ./scripts/bdd_inventory.py "test/bdd-out.txt" > test/bdd-inventory.md
+    cmd: python3 ./scripts/bdd_inventory.py "backend/test/bdd-out.txt" > backend/test/bdd-inventory.md
 
   kill-port:
     desc: "Kill specific port"

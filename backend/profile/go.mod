@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.90
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/pure-golang/adapters v0.0.0-20260420080457-e4d5ad6634a3
+	github.com/pure-golang/monorepo/backend/auth v0.0.0
 	github.com/pure-golang/platform v0.0.0-20260420065046-5eda790b3be9
 	github.com/vektah/gqlparser/v2 v2.5.33
 	golang.org/x/sync v0.20.0
@@ -68,3 +69,5 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
 )
+
+replace github.com/pure-golang/monorepo/backend/auth => ../auth

@@ -36,7 +36,3 @@ func TestMain(m *testing.M) {
 func TestIdentity(t *testing.T) {
 	runEpic(t, "01_identity")
 }
-
-func TestIdentity2(t *testing.T) {
-	// runEpic(t, "01_identity")
-}
