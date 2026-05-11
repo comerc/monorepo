@@ -48,12 +48,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <section className="page-section">
+    <section className="max-w-[720px]">
       <Title level={2}>Профиль</Title>
 
-      <Card className="profile-card">
+      <Card className="max-w-[480px] rounded-[3px]">
         {profileQuery.isLoading ? (
-          <div className="loading-state">
+          <div className="flex justify-center p-12">
             <Spin size="large" />
           </div>
         ) : profileQuery.isError ? (
@@ -67,7 +67,7 @@ export default function ProfilePage() {
             {setNicknameMutation.isError && (
               <Alert
                 closable
-                className="form-alert"
+                className="mb-4"
                 message="Не удалось сохранить профиль"
                 description={(setNicknameMutation.error as Error).message}
                 type="error"

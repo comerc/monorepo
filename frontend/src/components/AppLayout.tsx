@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Button, Layout, Space, Typography, theme } from 'antd'
+import { Button, Layout, Space, Typography } from 'antd'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { useAuth } from '../auth/AuthProvider'
 import { graphqlSdk } from '../graphql/client'
@@ -10,7 +10,6 @@ const { Text } = Typography
 
 export default function AppLayout() {
   const navigate = useNavigate()
-  const { token } = theme.useToken()
   const auth = useAuth()
 
   const handleLogout = async () => {
@@ -25,21 +24,15 @@ export default function AppLayout() {
   }
 
   return (
-    <Layout className="app-shell">
+    <Layout className="min-h-screen">
       <Sider width={220} theme="dark">
-        <div className="brand">
+        <div className="flex h-16 items-center justify-center gap-2 text-lg font-semibold text-white">
           <UserOutlined />
           <span>Frontend</span>
         </div>
       </Sider>
       <Layout>
-        <Header
-          className="app-header"
-          style={{
-            background: token.colorBgContainer,
-            borderBottom: `1px solid ${token.colorBorderSecondary}`,
-          }}
-        >
+        <Header className="flex items-center justify-end border-b border-app-border bg-app-header px-6 dark:border-app-border-dark dark:bg-app-header-dark">
           <Space>
             <Text>{auth.user?.nickname || auth.user?.email}</Text>
             <ThemeSwitcher />
@@ -48,7 +41,7 @@ export default function AppLayout() {
             </Button>
           </Space>
         </Header>
-        <Content className="app-content">
+        <Content className="m-6 min-h-[280px]">
           <Outlet />
         </Content>
       </Layout>

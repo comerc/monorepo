@@ -1,3 +1,28 @@
+@layer theme, base, antd, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "antd/dist/reset.css" layer(base);
+@import "antd/dist/antd.css" layer(antd);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: oklch(0.97 0.02 252);
+  --color-brand-100: oklch(0.93 0.04 252);
+  --color-brand-500: oklch(0.62 0.18 252);
+  --color-brand-600: oklch(0.54 0.2 252);
+  --color-brand-700: oklch(0.47 0.18 252);
+
+  --color-app-bg: oklch(0.977 0.008 255);
+  --color-app-bg-dark: oklch(0 0 0);
+  --color-app-header: oklch(1 0 0);
+  --color-app-header-dark: oklch(0.21 0.006 285);
+  --color-app-border: oklch(0.929 0.013 255);
+  --color-app-border-dark: oklch(0.274 0.006 286);
+}
+
 html,
 body,
 #root {
@@ -6,83 +31,5 @@ body,
 }
 
 body {
-  background: #f5f7fb;
-}
-
-body.dark {
-  background: #000000;
-}
-
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: #f5f7fb;
-}
-
-body.dark .auth-page {
-  background: #000000;
-}
-
-.auth-theme-switcher {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.auth-title {
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.app-shell {
-  min-height: 100vh;
-}
-
-.brand {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.app-header {
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.app-content {
-  margin: 24px;
-  min-height: 280px;
-}
-
-.page-section {
-  max-width: 720px;
-}
-
-.profile-card {
-  max-width: 480px;
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
-  padding: 48px;
-}
-
-.form-alert {
-  margin-bottom: 16px;
+  @apply bg-app-bg dark:bg-app-bg-dark;
 }

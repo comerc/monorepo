@@ -57,12 +57,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-page">
-      <div className="auth-theme-switcher">
+    <main className="flex min-h-screen items-center justify-center bg-app-bg p-6 dark:bg-app-bg-dark">
+      <div className="fixed right-4 top-4">
         <ThemeSwitcher />
       </div>
-      <Card className="auth-card">
-        <div className="auth-title">
+      <Card className="w-full max-w-[400px] rounded-[3px]">
+        <div className="mb-6 text-center">
           <Title level={3}>Вход</Title>
           <Text type="secondary">
             {codeSent ? `Введите код для ${email}` : 'Получите 4-значный код доступа на email'}

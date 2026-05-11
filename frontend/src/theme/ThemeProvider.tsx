@@ -49,7 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    document.body.classList.toggle('dark', effective === 'dark')
+    document.documentElement.classList.toggle('dark', effective === 'dark')
   }, [effective])
 
   const value = useMemo<ThemeState>(
@@ -70,7 +70,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         locale={ruRU}
         theme={{
           algorithm: effective === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-          token: { colorPrimary: '#1677ff' },
+          zeroRuntime: true,
         }}
       >
         {children}
