@@ -30,9 +30,19 @@ tasks:
       backend/profile/pkg/grpc/profile.proto
 
   gateway-compose:
-    desc: "Compose local Cosmo router execution config"
+    desc: "Compose Cosmo router execution config"
     dir: backend/gateway
     cmd: npx wgc router compose -i router-compose.yaml -o router.json
+
+  up:
+    desc: "Run local docker compose stack"
+    cmds:
+      - task gateway-compose
+      - docker compose up -d --build
+
+  down:
+    desc: "Stop local docker compose stack"
+    cmd: docker compose down
 
   lint:
     desc: "Run linters"

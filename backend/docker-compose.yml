@@ -1,0 +1,167 @@
+# Backend-сервисы подключаются корневым compose-файлом через `include`.
+#
+# Запуск всего стека из корня репозитория:
+#   docker compose up -d --build
+#
+# Gateway:
+#   http://localhost:3002/graphql
+#   http://localhost:3002/
+
+services:
+  user-service:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE: user
+    container_name: monorepo-user-service
+    environment:
+      ENVIRONMENT: development
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-monorepo}
+      POSTGRES_USER: ${POSTGRES_USER:-monorepo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-monorepo}
+      POSTGRES_TRACE_LOG_LEVEL: error
+      REDIS_ADDR: redis:6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: "50051"
+      LOG_LEVEL: info
+      METRICS_PORT: "0"
+      SERVICE_NAME: user-service
+      TRACING_ENDPOINT: ""
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 50051"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - monorepo-network
+
+  auth-service:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE: auth
+    container_name: monorepo-auth-service
+    environment:
+      ENVIRONMENT: development
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-monorepo}
+      POSTGRES_USER: ${POSTGRES_USER:-monorepo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-monorepo}
+      POSTGRES_TRACE_LOG_LEVEL: error
+      REDIS_ADDR: redis:6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+      USER_GRPC_ADDR: user-service:50051
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-development-secret}
+      AUTH_CODE_TTL: 10m
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_FROM: auth@example.test
+      SMTP_TLS: "false"
+      SMTP_INSECURE: "true"
+      SMTP_MAX_RETRIES: "1"
+      WEBSERVER_HOST: 0.0.0.0
+      WEBSERVER_PORT: "8081"
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: "50052"
+      LOG_LEVEL: info
+      METRICS_PORT: "0"
+      SERVICE_NAME: auth-service
+      TRACING_ENDPOINT: ""
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/playground"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      user-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+    networks:
+      - monorepo-network
+
+  profile-service:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE: profile
+    container_name: monorepo-profile-service
+    environment:
+      ENVIRONMENT: development
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-monorepo}
+      POSTGRES_USER: ${POSTGRES_USER:-monorepo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-monorepo}
+      POSTGRES_TRACE_LOG_LEVEL: error
+      REDIS_ADDR: redis:6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+      AUTH_GRPC_ADDR: auth-service:50052
+      WEBSERVER_HOST: 0.0.0.0
+      WEBSERVER_PORT: "8082"
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: "50053"
+      LOG_LEVEL: info
+      METRICS_PORT: "0"
+      SERVICE_NAME: profile-service
+      TRACING_ENDPOINT: ""
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/playground"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - monorepo-network
+
+  gateway:
+    image: ghcr.io/wundergraph/cosmo/router:latest
+    container_name: monorepo-gateway
+    command: ["/router", "-config", "/config/config.yaml"]
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./gateway/config.yaml:/config/config.yaml:ro
+      - ./gateway/router.json:/config/router.json:ro
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      profile-service:
+        condition: service_healthy
+    networks:
+      - monorepo-network

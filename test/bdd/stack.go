@@ -269,8 +269,8 @@ func (s *Stack) startGateway(ctx context.Context, gatewayHTTP string, authHTTP s
 	if err != nil {
 		return nil, fmt.Errorf("read gateway router config: %w", err)
 	}
-	routerConfig := strings.ReplaceAll(string(routerJSON), "http://localhost:8081/graphql", "http://127.0.0.1:"+authHTTP+"/graphql")
-	routerConfig = strings.ReplaceAll(routerConfig, "http://localhost:8082/graphql", "http://127.0.0.1:"+profileHTTP+"/graphql")
+	routerConfig := strings.ReplaceAll(string(routerJSON), "http://auth-service:8081/graphql", "http://127.0.0.1:"+authHTTP+"/graphql")
+	routerConfig = strings.ReplaceAll(routerConfig, "http://profile-service:8082/graphql", "http://127.0.0.1:"+profileHTTP+"/graphql")
 	routerConfigPath := filepath.Join(workDir, "router.json")
 	if err := writeTempFile(routerConfigPath, []byte(routerConfig)); err != nil {
 		return nil, fmt.Errorf("write gateway router config: %w", err)
@@ -280,7 +280,8 @@ func (s *Stack) startGateway(ctx context.Context, gatewayHTTP string, authHTTP s
 	config := fmt.Sprintf(`version: "1"
 
 listen_addr: "127.0.0.1:%s"
-playground_enabled: false
+playground:
+  enabled: false
 log_level: "info"
 
 execution_config:

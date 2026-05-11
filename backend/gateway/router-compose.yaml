@@ -1,11 +1,10 @@
 version: 1
 subgraphs:
   - name: auth
-    routing_url: http://localhost:8081/graphql
+    routing_url: http://auth-service:8081/graphql
     schema:
       file: ../auth/internal/transport/http/graphql/schema.graphqls
   - name: profile
-    routing_url: http://localhost:8082/graphql
+    routing_url: http://profile-service:8082/graphql
     schema:
       file: ../profile/internal/transport/http/graphql/schema.graphqls
-

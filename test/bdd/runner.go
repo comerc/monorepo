@@ -20,7 +20,8 @@ var chdirOnce sync.Once
 func runEpic(t *testing.T, epic string) {
 	t.Helper()
 
-	if _, err := GetOrCreateStack(t); err != nil {
+	stack, err := GetOrCreateStack(t)
+	if err != nil {
 		t.Fatalf("BDD stack init: %v", err)
 	}
 
@@ -34,7 +35,7 @@ func runEpic(t *testing.T, epic string) {
 			Strict:   true,
 		},
 		ScenarioInitializer: func(ctx *godog.ScenarioContext) {
-			s := &State{}
+			s := &State{Stack: stack}
 			ctx.Before(func(gctx context.Context, _ *godog.Scenario) (context.Context, error) {
 				return gctx, s.Reset(t)
 			})
