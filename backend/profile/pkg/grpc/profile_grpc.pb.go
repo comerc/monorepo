@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v7.34.1
-// source: backend/profile/pkg/grpc/profile.proto
+// source: profile/pkg/grpc/profile.proto
 
 package profilepb
 
@@ -155,5 +155,5 @@ var ProfileService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "backend/profile/pkg/grpc/profile.proto",
+	Metadata: "profile/pkg/grpc/profile.proto",
 }

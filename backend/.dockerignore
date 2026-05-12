@@ -1,0 +1,9 @@
+test/
+gateway/
+docker-compose.yml
+Dockerfile
+go.work
+go.work.sum
+scripts/
+Taskfile.yml
+.golangci.yml

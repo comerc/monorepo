@@ -10,8 +10,8 @@
 services:
   user-service:
     build:
-      context: ..
-      dockerfile: backend/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: user
     container_name: monorepo-user-service
@@ -49,8 +49,8 @@ services:
 
   auth-service:
     build:
-      context: ..
-      dockerfile: backend/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: auth
     container_name: monorepo-auth-service
@@ -105,8 +105,8 @@ services:
 
   profile-service:
     build:
-      context: ..
-      dockerfile: backend/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: profile
     container_name: monorepo-profile-service

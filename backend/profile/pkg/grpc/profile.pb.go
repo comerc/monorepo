@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v7.34.1
-// source: backend/profile/pkg/grpc/profile.proto
+// source: profile/pkg/grpc/profile.proto
 
 package profilepb
 
@@ -30,7 +30,7 @@ type GetProfileRequest struct {
 
 func (x *GetProfileRequest) Reset() {
 	*x = GetProfileRequest{}
-	mi := &file_backend_profile_pkg_grpc_profile_proto_msgTypes[0]
+	mi := &file_profile_pkg_grpc_profile_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *GetProfileRequest) String() string {
 func (*GetProfileRequest) ProtoMessage() {}
 
 func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_profile_pkg_grpc_profile_proto_msgTypes[0]
+	mi := &file_profile_pkg_grpc_profile_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProfileRequest.ProtoReflect.Descriptor instead.
 func (*GetProfileRequest) Descriptor() ([]byte, []int) {
-	return file_backend_profile_pkg_grpc_profile_proto_rawDescGZIP(), []int{0}
+	return file_profile_pkg_grpc_profile_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetProfileRequest) GetUserId() string {
@@ -75,7 +75,7 @@ type SetNicknameRequest struct {
 
 func (x *SetNicknameRequest) Reset() {
 	*x = SetNicknameRequest{}
-	mi := &file_backend_profile_pkg_grpc_profile_proto_msgTypes[1]
+	mi := &file_profile_pkg_grpc_profile_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -87,7 +87,7 @@ func (x *SetNicknameRequest) String() string {
 func (*SetNicknameRequest) ProtoMessage() {}
 
 func (x *SetNicknameRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_profile_pkg_grpc_profile_proto_msgTypes[1]
+	mi := &file_profile_pkg_grpc_profile_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -100,7 +100,7 @@ func (x *SetNicknameRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetNicknameRequest.ProtoReflect.Descriptor instead.
 func (*SetNicknameRequest) Descriptor() ([]byte, []int) {
-	return file_backend_profile_pkg_grpc_profile_proto_rawDescGZIP(), []int{1}
+	return file_profile_pkg_grpc_profile_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SetNicknameRequest) GetUserId() string {
@@ -127,7 +127,7 @@ type ProfileResponse struct {
 
 func (x *ProfileResponse) Reset() {
 	*x = ProfileResponse{}
-	mi := &file_backend_profile_pkg_grpc_profile_proto_msgTypes[2]
+	mi := &file_profile_pkg_grpc_profile_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -139,7 +139,7 @@ func (x *ProfileResponse) String() string {
 func (*ProfileResponse) ProtoMessage() {}
 
 func (x *ProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_profile_pkg_grpc_profile_proto_msgTypes[2]
+	mi := &file_profile_pkg_grpc_profile_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,7 +152,7 @@ func (x *ProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProfileResponse.ProtoReflect.Descriptor instead.
 func (*ProfileResponse) Descriptor() ([]byte, []int) {
-	return file_backend_profile_pkg_grpc_profile_proto_rawDescGZIP(), []int{2}
+	return file_profile_pkg_grpc_profile_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ProfileResponse) GetUserId() string {
@@ -169,11 +169,11 @@ func (x *ProfileResponse) GetNickname() string {
 	return ""
 }
 
-var File_backend_profile_pkg_grpc_profile_proto protoreflect.FileDescriptor
+var File_profile_pkg_grpc_profile_proto protoreflect.FileDescriptor
 
-const file_backend_profile_pkg_grpc_profile_proto_rawDesc = "" +
+const file_profile_pkg_grpc_profile_proto_rawDesc = "" +
 	"\n" +
-	"&backend/profile/pkg/grpc/profile.proto\x12\n" +
+	"\x1eprofile/pkg/grpc/profile.proto\x12\n" +
 	"profile.v1\",\n" +
 	"\x11GetProfileRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"I\n" +
@@ -189,24 +189,24 @@ const file_backend_profile_pkg_grpc_profile_proto_rawDesc = "" +
 	"\vSetNickname\x12\x1e.profile.v1.SetNicknameRequest\x1a\x1b.profile.v1.ProfileResponseBDZBgithub.com/pure-golang/monorepo/backend/profile/pkg/grpc;profilepbb\x06proto3"
 
 var (
-	file_backend_profile_pkg_grpc_profile_proto_rawDescOnce sync.Once
-	file_backend_profile_pkg_grpc_profile_proto_rawDescData []byte
+	file_profile_pkg_grpc_profile_proto_rawDescOnce sync.Once
+	file_profile_pkg_grpc_profile_proto_rawDescData []byte
 )
 
-func file_backend_profile_pkg_grpc_profile_proto_rawDescGZIP() []byte {
-	file_backend_profile_pkg_grpc_profile_proto_rawDescOnce.Do(func() {
-		file_backend_profile_pkg_grpc_profile_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_backend_profile_pkg_grpc_profile_proto_rawDesc), len(file_backend_profile_pkg_grpc_profile_proto_rawDesc)))
+func file_profile_pkg_grpc_profile_proto_rawDescGZIP() []byte {
+	file_profile_pkg_grpc_profile_proto_rawDescOnce.Do(func() {
+		file_profile_pkg_grpc_profile_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_profile_pkg_grpc_profile_proto_rawDesc), len(file_profile_pkg_grpc_profile_proto_rawDesc)))
 	})
-	return file_backend_profile_pkg_grpc_profile_proto_rawDescData
+	return file_profile_pkg_grpc_profile_proto_rawDescData
 }
 
-var file_backend_profile_pkg_grpc_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_backend_profile_pkg_grpc_profile_proto_goTypes = []any{
+var file_profile_pkg_grpc_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_profile_pkg_grpc_profile_proto_goTypes = []any{
 	(*GetProfileRequest)(nil),  // 0: profile.v1.GetProfileRequest
 	(*SetNicknameRequest)(nil), // 1: profile.v1.SetNicknameRequest
 	(*ProfileResponse)(nil),    // 2: profile.v1.ProfileResponse
 }
-var file_backend_profile_pkg_grpc_profile_proto_depIdxs = []int32{
+var file_profile_pkg_grpc_profile_proto_depIdxs = []int32{
 	0, // 0: profile.v1.ProfileService.GetProfile:input_type -> profile.v1.GetProfileRequest
 	1, // 1: profile.v1.ProfileService.SetNickname:input_type -> profile.v1.SetNicknameRequest
 	2, // 2: profile.v1.ProfileService.GetProfile:output_type -> profile.v1.ProfileResponse
@@ -218,26 +218,26 @@ var file_backend_profile_pkg_grpc_profile_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_backend_profile_pkg_grpc_profile_proto_init() }
-func file_backend_profile_pkg_grpc_profile_proto_init() {
-	if File_backend_profile_pkg_grpc_profile_proto != nil {
+func init() { file_profile_pkg_grpc_profile_proto_init() }
+func file_profile_pkg_grpc_profile_proto_init() {
+	if File_profile_pkg_grpc_profile_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_backend_profile_pkg_grpc_profile_proto_rawDesc), len(file_backend_profile_pkg_grpc_profile_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_profile_pkg_grpc_profile_proto_rawDesc), len(file_profile_pkg_grpc_profile_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_backend_profile_pkg_grpc_profile_proto_goTypes,
-		DependencyIndexes: file_backend_profile_pkg_grpc_profile_proto_depIdxs,
-		MessageInfos:      file_backend_profile_pkg_grpc_profile_proto_msgTypes,
+		GoTypes:           file_profile_pkg_grpc_profile_proto_goTypes,
+		DependencyIndexes: file_profile_pkg_grpc_profile_proto_depIdxs,
+		MessageInfos:      file_profile_pkg_grpc_profile_proto_msgTypes,
 	}.Build()
-	File_backend_profile_pkg_grpc_profile_proto = out.File
-	file_backend_profile_pkg_grpc_profile_proto_goTypes = nil
-	file_backend_profile_pkg_grpc_profile_proto_depIdxs = nil
+	File_profile_pkg_grpc_profile_proto = out.File
+	file_profile_pkg_grpc_profile_proto_goTypes = nil
+	file_profile_pkg_grpc_profile_proto_depIdxs = nil
 }

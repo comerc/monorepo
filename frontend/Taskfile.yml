@@ -1,0 +1,10 @@
+version: "3"
+
+tasks:
+  run-dev:
+    desc: "Run dev"
+    cmd: npm run dev
+
+  test-bdd:
+    desc: "Run BDD scenarios"
+    cmd: npm run test:bdd

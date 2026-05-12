@@ -5,15 +5,13 @@ set -euo pipefail
 COMMAND="$1"
 
 # Выполняем поиск модулей и запуск переданной команды в каждом
-modules="$(sed -n 's/^[[:space:]]*\(\.\/[^[:space:]]*\)[[:space:]]*$/\1/p' go.work)"
-
-for dir in $modules; do
-  echo "==> ${dir}"
+while IFS= read -r dir; do
+  echo "==> ${dir#$PWD/}"
   (
     cd "$dir"
     # Выполняем команду, переданную в скрипт
     eval "$COMMAND"
   )
-done
+done < <(go list -m -f '{{.Dir}}')
 
 echo "==> Total time: $SECONDS sec."

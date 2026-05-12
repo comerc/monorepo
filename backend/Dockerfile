@@ -4,7 +4,7 @@ FROM golang:${GO_VERSION}-alpine AS build
 
 WORKDIR /src
 
-COPY backend/. ./
+COPY . ./
 
 ARG SERVICE
 WORKDIR /src/${SERVICE}

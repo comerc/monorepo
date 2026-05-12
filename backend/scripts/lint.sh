@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG="$SCRIPT_DIR/../.golangci.yml"
+CONFIG="$SCRIPT_DIR/../../.golangci.yml"
 
 MODULE_NAME="$(awk '/^module/{print $2; exit}' go.mod)"
 

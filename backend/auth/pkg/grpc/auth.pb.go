@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v7.34.1
-// source: backend/auth/pkg/grpc/auth.proto
+// source: auth/pkg/grpc/auth.proto
 
 package authpb
 
@@ -30,7 +30,7 @@ type ValidateTokenRequest struct {
 
 func (x *ValidateTokenRequest) Reset() {
 	*x = ValidateTokenRequest{}
-	mi := &file_backend_auth_pkg_grpc_auth_proto_msgTypes[0]
+	mi := &file_auth_pkg_grpc_auth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *ValidateTokenRequest) String() string {
 func (*ValidateTokenRequest) ProtoMessage() {}
 
 func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_auth_pkg_grpc_auth_proto_msgTypes[0]
+	mi := &file_auth_pkg_grpc_auth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenRequest.ProtoReflect.Descriptor instead.
 func (*ValidateTokenRequest) Descriptor() ([]byte, []int) {
-	return file_backend_auth_pkg_grpc_auth_proto_rawDescGZIP(), []int{0}
+	return file_auth_pkg_grpc_auth_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ValidateTokenRequest) GetToken() string {
@@ -76,7 +76,7 @@ type ValidateTokenResponse struct {
 
 func (x *ValidateTokenResponse) Reset() {
 	*x = ValidateTokenResponse{}
-	mi := &file_backend_auth_pkg_grpc_auth_proto_msgTypes[1]
+	mi := &file_auth_pkg_grpc_auth_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -88,7 +88,7 @@ func (x *ValidateTokenResponse) String() string {
 func (*ValidateTokenResponse) ProtoMessage() {}
 
 func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_auth_pkg_grpc_auth_proto_msgTypes[1]
+	mi := &file_auth_pkg_grpc_auth_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -101,7 +101,7 @@ func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenResponse.ProtoReflect.Descriptor instead.
 func (*ValidateTokenResponse) Descriptor() ([]byte, []int) {
-	return file_backend_auth_pkg_grpc_auth_proto_rawDescGZIP(), []int{1}
+	return file_auth_pkg_grpc_auth_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ValidateTokenResponse) GetUserId() string {
@@ -125,11 +125,11 @@ func (x *ValidateTokenResponse) GetTokenId() string {
 	return ""
 }
 
-var File_backend_auth_pkg_grpc_auth_proto protoreflect.FileDescriptor
+var File_auth_pkg_grpc_auth_proto protoreflect.FileDescriptor
 
-const file_backend_auth_pkg_grpc_auth_proto_rawDesc = "" +
+const file_auth_pkg_grpc_auth_proto_rawDesc = "" +
 	"\n" +
-	" backend/auth/pkg/grpc/auth.proto\x12\aauth.v1\",\n" +
+	"\x18auth/pkg/grpc/auth.proto\x12\aauth.v1\",\n" +
 	"\x14ValidateTokenRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"a\n" +
 	"\x15ValidateTokenResponse\x12\x17\n" +
@@ -140,23 +140,23 @@ const file_backend_auth_pkg_grpc_auth_proto_rawDesc = "" +
 	"\rValidateToken\x12\x1d.auth.v1.ValidateTokenRequest\x1a\x1e.auth.v1.ValidateTokenResponseB>Z<github.com/pure-golang/monorepo/backend/auth/pkg/grpc;authpbb\x06proto3"
 
 var (
-	file_backend_auth_pkg_grpc_auth_proto_rawDescOnce sync.Once
-	file_backend_auth_pkg_grpc_auth_proto_rawDescData []byte
+	file_auth_pkg_grpc_auth_proto_rawDescOnce sync.Once
+	file_auth_pkg_grpc_auth_proto_rawDescData []byte
 )
 
-func file_backend_auth_pkg_grpc_auth_proto_rawDescGZIP() []byte {
-	file_backend_auth_pkg_grpc_auth_proto_rawDescOnce.Do(func() {
-		file_backend_auth_pkg_grpc_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_backend_auth_pkg_grpc_auth_proto_rawDesc), len(file_backend_auth_pkg_grpc_auth_proto_rawDesc)))
+func file_auth_pkg_grpc_auth_proto_rawDescGZIP() []byte {
+	file_auth_pkg_grpc_auth_proto_rawDescOnce.Do(func() {
+		file_auth_pkg_grpc_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_pkg_grpc_auth_proto_rawDesc), len(file_auth_pkg_grpc_auth_proto_rawDesc)))
 	})
-	return file_backend_auth_pkg_grpc_auth_proto_rawDescData
+	return file_auth_pkg_grpc_auth_proto_rawDescData
 }
 
-var file_backend_auth_pkg_grpc_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_backend_auth_pkg_grpc_auth_proto_goTypes = []any{
+var file_auth_pkg_grpc_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_auth_pkg_grpc_auth_proto_goTypes = []any{
 	(*ValidateTokenRequest)(nil),  // 0: auth.v1.ValidateTokenRequest
 	(*ValidateTokenResponse)(nil), // 1: auth.v1.ValidateTokenResponse
 }
-var file_backend_auth_pkg_grpc_auth_proto_depIdxs = []int32{
+var file_auth_pkg_grpc_auth_proto_depIdxs = []int32{
 	0, // 0: auth.v1.AuthService.ValidateToken:input_type -> auth.v1.ValidateTokenRequest
 	1, // 1: auth.v1.AuthService.ValidateToken:output_type -> auth.v1.ValidateTokenResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -166,26 +166,26 @@ var file_backend_auth_pkg_grpc_auth_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_backend_auth_pkg_grpc_auth_proto_init() }
-func file_backend_auth_pkg_grpc_auth_proto_init() {
-	if File_backend_auth_pkg_grpc_auth_proto != nil {
+func init() { file_auth_pkg_grpc_auth_proto_init() }
+func file_auth_pkg_grpc_auth_proto_init() {
+	if File_auth_pkg_grpc_auth_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_backend_auth_pkg_grpc_auth_proto_rawDesc), len(file_backend_auth_pkg_grpc_auth_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_pkg_grpc_auth_proto_rawDesc), len(file_auth_pkg_grpc_auth_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_backend_auth_pkg_grpc_auth_proto_goTypes,
-		DependencyIndexes: file_backend_auth_pkg_grpc_auth_proto_depIdxs,
-		MessageInfos:      file_backend_auth_pkg_grpc_auth_proto_msgTypes,
+		GoTypes:           file_auth_pkg_grpc_auth_proto_goTypes,
+		DependencyIndexes: file_auth_pkg_grpc_auth_proto_depIdxs,
+		MessageInfos:      file_auth_pkg_grpc_auth_proto_msgTypes,
 	}.Build()
-	File_backend_auth_pkg_grpc_auth_proto = out.File
-	file_backend_auth_pkg_grpc_auth_proto_goTypes = nil
-	file_backend_auth_pkg_grpc_auth_proto_depIdxs = nil
+	File_auth_pkg_grpc_auth_proto = out.File
+	file_auth_pkg_grpc_auth_proto_goTypes = nil
+	file_auth_pkg_grpc_auth_proto_depIdxs = nil
 }
