@@ -15,8 +15,12 @@ interface BrowserUser {
   nickname: string | null
 }
 
-export async function mockGraphQL(page: Page, email = 'user@example.com') {
-  const user: BrowserUser = { id: userID, email, nickname: null }
+export async function mockGraphQL(
+  page: Page,
+  email = 'user@example.com',
+  nickname: string | null = null,
+) {
+  const user: BrowserUser = { id: userID, email, nickname }
 
   await page.route('**/graphql', async (route) => {
     const request = route.request().postDataJSON() as GraphQLRequest
@@ -69,8 +73,17 @@ export async function mockGraphQL(page: Page, email = 'user@example.com') {
 export async function seedBrowserSession(page: Page, email: string) {
   await page.addInitScript(
     (session) => {
-      window.localStorage.setItem('auth_token', session.token)
-      window.localStorage.setItem('auth_user', JSON.stringify(session.user))
+      window.localStorage.setItem(
+        'auth',
+        JSON.stringify({
+          state: {
+            token: session.token,
+            user: session.user,
+            isAuthenticated: true,
+          },
+          version: 0,
+        }),
+      )
     },
     {
       token,

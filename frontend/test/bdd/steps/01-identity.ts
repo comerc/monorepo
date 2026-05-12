@@ -38,10 +38,23 @@ Given('пользователь вошёл по email {string}', async ({ page }
   await page.goto('/profile')
 })
 
+Given(
+  'пользователь вошёл по email {string} с nickname {string}',
+  async ({ page }, email: string, nickname: string) => {
+    await mockGraphQL(page, email, nickname)
+    await seedBrowserSession(page, email)
+    await page.goto('/profile')
+  },
+)
+
 When('пользователь указывает nickname {string}', async ({ page }, nickname: string) => {
   await new ProfilePage(page).setNickname(nickname)
 })
 
 Then('профиль пользователя содержит nickname {string}', async ({ page }, nickname: string) => {
   await new ProfilePage(page).expectNickname(nickname)
+})
+
+Then('шапка профиля показывает nickname {string}', async ({ page }, nickname: string) => {
+  await new ProfilePage(page).expectHeaderNickname(nickname)
 })

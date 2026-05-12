@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button, Card, Form, Input, Typography, message } from 'antd'
 import { graphqlSdk } from '../graphql/client'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/authStore'
 import ThemeSwitcher from '../components/ThemeSwitcher'
 
 const { Text, Title } = Typography

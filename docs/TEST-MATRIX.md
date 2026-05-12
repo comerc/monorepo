@@ -93,18 +93,19 @@ Steps: `backend/test/bdd/steps_01_identity.go`
 ### Identity (`features/01_identity`)
 
 Feature: `features/01_identity/01_email_login.feature`  
-Steps: `frontend/test/bdd/steps/identity.steps.ts`
+Steps: `frontend/test/bdd/steps_01_identity.ts`
 
 | ID | Сценарий | Статус |
 |----|----------|--------|
 | BROWSER-BDD-IDENTITY-001 | `04_login_with_email_code_in_browser` | Активен |
 
 Feature: `features/01_identity/02_profile.feature`  
-Steps: `frontend/test/bdd/steps/identity.steps.ts`
+Steps: `frontend/test/bdd/steps_01_identity.ts`
 
 | ID | Сценарий | Статус |
 |----|----------|--------|
 | BROWSER-BDD-IDENTITY-002 | `01_set_unique_nickname` | Активен |
+| BROWSER-BDD-IDENTITY-003 | `02_show_saved_nickname_in_header` | Активен |
 
 ---
 
@@ -140,9 +141,9 @@ Steps: `frontend/test/bdd/steps/identity.steps.ts`
 | `backend/auth/internal/transport/http` | 0 | BDD identity | 0 | 0 |
 | `backend/user` | 0 | BDD identity | 0 | 0 |
 | `backend/profile` | 0 | BDD identity | 0 | 0 |
-| `frontend/src/pages` | 0 | 0 | BDD identity | 0 |
+| `frontend/src` | 0 | 0 | BDD identity | 0 |
 | `test/smoke` | 0 | 0 | 0 | 0 |
-| **Итого** | **4** | **4 API BDD-сценария** | **2 Browser BDD-сценария** | **0** |
+| **Итого** | **4** | **4 API BDD-сценария** | **3 Browser BDD-сценария** | **0** |
 
 ---
 

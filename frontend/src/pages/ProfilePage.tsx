@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, Button, Card, Form, Input, Spin, Typography, message } from 'antd'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/authStore'
 import { graphqlSdk } from '../graphql/client'
 
 const { Text, Title } = Typography
@@ -15,9 +15,10 @@ export default function ProfilePage() {
   const [form] = Form.useForm<ProfileFormValues>()
   const queryClient = useQueryClient()
   const auth = useAuth()
+  const profileQueryKey = ['my-profile', auth.user?.id]
 
   const profileQuery = useQuery({
-    queryKey: ['my-profile', auth.user?.id],
+    queryKey: profileQueryKey,
     queryFn: () => graphqlSdk(auth.token).MyProfile().then((data) => data.myProfile),
     enabled: Boolean(auth.token),
   })
@@ -35,7 +36,8 @@ export default function ProfilePage() {
     mutationFn: (nickname: string) =>
       graphqlSdk(auth.token).SetNickname({ nickname }).then((data) => data.setNickname),
     onSuccess: (profile) => {
-      void queryClient.invalidateQueries({ queryKey: ['my-profile', auth.user?.id] })
+      queryClient.setQueryData(profileQueryKey, profile)
+      void queryClient.invalidateQueries({ queryKey: profileQueryKey })
       if (auth.user) {
         auth.updateUser({ ...auth.user, nickname: profile.nickname })
       }

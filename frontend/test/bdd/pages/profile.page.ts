@@ -17,4 +17,8 @@ export class ProfilePage {
     await expect(this.page.getByLabel('Nickname')).toHaveValue(nickname)
     await expect(this.page.getByText(nickname).first()).toBeVisible()
   }
+
+  async expectHeaderNickname(nickname: string) {
+    await expect(this.page.locator('header')).toContainText(nickname)
+  }
 }

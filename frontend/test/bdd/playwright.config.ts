@@ -8,7 +8,7 @@ const configDir = path.dirname(fileURLToPath(import.meta.url))
 const testDir = defineBddConfig({
   features: path.resolve(configDir, '../../../features/**/*.feature'),
   featuresRoot: path.resolve(configDir, '../../../features'),
-  steps: './steps/**/*.ts',
+  steps: './steps/*.ts',
   outputDir: '.features-gen',
   tags: '@browser',
 })
