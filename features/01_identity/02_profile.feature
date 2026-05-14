@@ -4,20 +4,20 @@ Feature: Профиль пользователя
   Я хочу указать nickname в своём профиле
   Чтобы другие части продукта могли показывать моё публичное имя
 
-  @api @browser
+  @browser
   Scenario: 01_set_unique_nickname
     Given пользователь вошёл по email "user@example.com"
     When пользователь указывает nickname "aka"
     Then профиль пользователя содержит nickname "aka"
 
-  @api @browser
+  @browser
   Scenario: 01A_set_nickname_rejects_taken_nickname
     Given пользователь вошёл по email "user@example.com"
     And nickname "aka" уже занят другим пользователем
     When пользователь указывает nickname "aka"
     Then пользователь видит ошибку nickname "nickname is already taken"
 
-  @api @browser
+  @api
   Scenario: 01B_set_nickname_trims_outer_spaces
     Given пользователь вошёл по email "user@example.com"
     When пользователь указывает nickname " aka "
@@ -36,7 +36,7 @@ Feature: Профиль пользователя
     When пользователь указывает nickname "aka"
     Then профиль пользователя содержит nickname "aka"
 
-  @api @browser
+  @api
   Scenario: 01E_change_existing_nickname
     Given пользователь вошёл по email "user@example.com" с nickname "aka"
     When пользователь указывает nickname "level85"

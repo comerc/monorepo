@@ -2,7 +2,7 @@
 
 ## Контекст
 
-Монорепозиторий содержит identity-срез из `user`, `auth`, `profile`, локального `gateway` и React frontend. Основной внешний интерфейс: federated GraphQL через `gateway`; внутренние интерфейсы: GraphQL у `auth`/`profile`, gRPC у `user`/`auth`/`profile`. API BDD поднимает PostgreSQL, Redis, RabbitMQ, Cosmo Router и SMTP capture через testcontainers; Browser BDD поднимает Vite preview и проверяет пользовательские сценарии через Playwright.
+Монорепозиторий содержит identity-срез из `user`, `auth`, `profile`, локального `gateway` и React frontend. Основной внешний интерфейс: federated GraphQL через `gateway`; внутренние интерфейсы: GraphQL у `auth`/`profile`, gRPC у `user`/`auth`/`profile`. API BDD поднимает PostgreSQL, Redis, RabbitMQ, Cosmo Router и SMTP capture через testcontainers; Browser BDD поднимает live backend stack, Vite preview и проверяет пользовательские сценарии через Playwright без API-моков.
 
 **Архитектура:**
 - `backend/auth` — passwordless-аутентификация по email-коду, JWT, cooldown и logout.
@@ -79,12 +79,12 @@ Feature: `features/01_identity/01_email_login.feature`
 |----|----------|----------------|---------|-------------|
 | IDENTITY-F-001 | `01_request_email_code` | `@api` | Активен | Нет |
 | IDENTITY-F-002 | `01A_request_email_code_rejects_empty_email` | `@api` | Активен | Нет |
-| IDENTITY-F-003 | `01B_request_email_code_rejects_invalid_email` | `@api @browser` | Активен | Активен |
+| IDENTITY-F-003 | `01B_request_email_code_rejects_invalid_email` | `@api` | Активен | Нет |
 | IDENTITY-F-004 | `01C_request_email_code_normalizes_email` | `@api` | Активен | Нет |
 | IDENTITY-F-005 | `01D_request_email_code_respects_cooldown` | `@api` | Активен | Нет |
 | IDENTITY-F-006 | `01E_request_email_code_escalates_cooldown` | `@api` | Активен | Нет |
 | IDENTITY-F-007 | `02_login_with_email_code` | `@api` | Активен | Нет |
-| IDENTITY-F-008 | `02A_login_rejects_wrong_email_code` | `@api @browser` | Активен | Активен |
+| IDENTITY-F-008 | `02A_login_rejects_wrong_email_code` | `@api` | Активен | Нет |
 | IDENTITY-F-009 | `02B_login_rejects_expired_email_code` | `@api` | Активен | Нет |
 | IDENTITY-F-010 | `02C_login_accepts_any_active_requested_code` | `@api` | Активен | Нет |
 | IDENTITY-F-011 | `02D_login_consumes_all_active_email_codes` | `@api` | Активен | Нет |
@@ -92,15 +92,14 @@ Feature: `features/01_identity/01_email_login.feature`
 | IDENTITY-F-013 | `02F_login_resets_email_code_cooldown` | `@api` | Активен | Нет |
 | IDENTITY-F-014 | `03_logout_revokes_token` | `@api` | Активен | Нет |
 | IDENTITY-F-015 | `03A_logout_current_session_keeps_other_sessions` | `@api` | Активен | Нет |
-| IDENTITY-F-016 | `03B_logout_everywhere_revokes_all_sessions` | `@api @browser` | Активен | Активен |
+| IDENTITY-F-016 | `03B_logout_everywhere_revokes_all_sessions` | `@browser` | Нет | Активен |
 | IDENTITY-F-017 | `04_login_with_email_code_in_browser` | `@browser` | Нет | Активен |
 | IDENTITY-F-018 | `04A_browser_login_shows_invalid_code_error` | `@browser` | Нет | Активен |
 | IDENTITY-F-019 | `04B_browser_login_shows_email_validation_error` | `@browser` | Нет | Активен |
 | IDENTITY-F-020 | `04C_browser_login_hides_email_after_code_request` | `@browser` | Нет | Активен |
 | IDENTITY-F-021 | `04D_browser_resend_code_uses_countdown` | `@browser` | Нет | Активен |
-| IDENTITY-F-022 | `04E_browser_login_shows_code_request_error` | `@browser` | Нет | Активен |
-| IDENTITY-F-023 | `04F_browser_login_validates_email_after_submit` | `@browser` | Нет | Активен |
-| IDENTITY-F-024 | `04G_browser_login_requires_email_after_submit` | `@browser` | Нет | Активен |
+| IDENTITY-F-022 | `04F_browser_login_validates_email_after_submit` | `@browser` | Нет | Активен |
+| IDENTITY-F-023 | `04G_browser_login_requires_email_after_submit` | `@browser` | Нет | Активен |
 
 ### Identity profile
 
@@ -108,12 +107,12 @@ Feature: `features/01_identity/02_profile.feature`
 
 | ID | Сценарий | Execution tags | API BDD | Browser BDD |
 |----|----------|----------------|---------|-------------|
-| IDENTITY-F-025 | `01_set_unique_nickname` | `@api @browser` | Активен | Активен |
-| IDENTITY-F-026 | `01A_set_nickname_rejects_taken_nickname` | `@api @browser` | Активен | Активен |
-| IDENTITY-F-027 | `01B_set_nickname_trims_outer_spaces` | `@api @browser` | Активен | Активен |
+| IDENTITY-F-025 | `01_set_unique_nickname` | `@browser` | Нет | Активен |
+| IDENTITY-F-026 | `01A_set_nickname_rejects_taken_nickname` | `@browser` | Нет | Активен |
+| IDENTITY-F-027 | `01B_set_nickname_trims_outer_spaces` | `@api` | Активен | Нет |
 | IDENTITY-F-028 | `01C_set_nickname_rejects_too_short_nickname` | `@api` | Активен | Нет |
 | IDENTITY-F-029 | `01D_set_nickname_allows_case_sensitive_variants` | `@api` | Активен | Нет |
-| IDENTITY-F-030 | `01E_change_existing_nickname` | `@api @browser` | Активен | Активен |
+| IDENTITY-F-030 | `01E_change_existing_nickname` | `@api` | Активен | Нет |
 | IDENTITY-F-031 | `01F_profile_requires_authenticated_user` | `@api` | Активен | Нет |
 | IDENTITY-F-032 | `01G_browser_profile_without_login_opens_login_form` | `@browser` | Нет | Активен |
 | IDENTITY-F-033 | `01H_browser_set_nickname_shows_short_error` | `@browser` | Нет | Активен |
@@ -133,21 +132,23 @@ Steps: `backend/test/bdd/steps_01_identity.go`
 
 | ID | Тест | Статус |
 |----|------|--------|
-| API-BDD-IDENTITY-001 | `01_email_login.feature` сценарии с `@api` | 16 активных |
-| API-BDD-IDENTITY-002 | `02_profile.feature` сценарии с `@api` | 7 активных |
+| API-BDD-IDENTITY-001 | `01_email_login.feature` сценарии с `@api` | 15 активных |
+| API-BDD-IDENTITY-002 | `02_profile.feature` сценарии с `@api` | 5 активных |
 
 ---
 
 ## Browser BDD runner (`frontend/test/bdd/`)
 
-Требует: установленный Chromium для Playwright и Vite preview. Канонический запуск из monorepo: `task frontend:test-bdd`; локально из `frontend/`: `npm run test:bdd`.
+Требует: Docker, live backend stack, Mailpit, установленный Chromium для Playwright и Vite preview. Канонический запуск из monorepo: `task frontend:test-bdd`; локально из `frontend/`: `npm run test:bdd`.
+
+Browser BDD ходит в live federated GraphQL endpoint `http://127.0.0.1:3002/graphql`. API route mocks для `.feature`-сценариев запрещены guard-скриптом `frontend/test/bdd/support/assert-no-api-mocks.mjs`.
 
 Steps: `frontend/test/bdd/steps_01_identity.ts`
 
 | ID | Тест | Статус |
 |----|------|--------|
-| BROWSER-BDD-IDENTITY-001 | `01_email_login.feature` сценарии с `@browser` | 11 активных |
-| BROWSER-BDD-IDENTITY-002 | `02_profile.feature` сценарии с `@browser` | 11 активных |
+| BROWSER-BDD-IDENTITY-001 | `01_email_login.feature` сценарии с `@browser` | 8 активных |
+| BROWSER-BDD-IDENTITY-002 | `02_profile.feature` сценарии с `@browser` | 9 активных |
 
 ---
 
@@ -174,7 +175,7 @@ Steps: `frontend/test/bdd/steps_01_identity.ts`
 | `backend/user` | 0 | BDD identity | 0 | 0 |
 | `frontend/src` | 0 | 0 | BDD identity | 0 |
 | `backend/test/smoke` | 0 | 0 | 0 | 0 |
-| **Итого** | **15** | **23 API BDD-сценария** | **22 Browser BDD-сценария** | **0** |
+| **Итого** | **15** | **20 API BDD-сценария** | **17 Browser BDD-сценариев** | **0** |
 
 ---
 

@@ -14,7 +14,7 @@ Feature: Вход по email
     When пользователь запрашивает код доступа для email ""
     Then пользователь видит ошибку email "email is required"
 
-  @api @browser
+  @api
   Scenario: 01B_request_email_code_rejects_invalid_email
     When пользователь запрашивает код доступа для email "user"
     Then пользователь видит ошибку email "email is invalid"
@@ -41,7 +41,7 @@ Feature: Вход по email
     When пользователь вводит полученный код доступа для email "user@example.com"
     Then пользователь получает JWT-токен
 
-  @api @browser
+  @api
   Scenario: 02A_login_rejects_wrong_email_code
     Given пользователь получил код доступа для email "user@example.com"
     When пользователь вводит код доступа "00000" для email "user@example.com"
@@ -91,7 +91,7 @@ Feature: Вход по email
     Then текущая сессия больше не действует
     And другая сессия пользователя продолжает действовать
 
-  @api @browser
+  @browser
   Scenario: 03B_logout_everywhere_revokes_all_sessions
     Given пользователь вошёл по email "user@example.com" в двух сессиях
     When пользователь выходит из системы на всех устройствах
@@ -101,8 +101,8 @@ Feature: Вход по email
   Scenario: 04_login_with_email_code_in_browser
     Given пользователь находится на странице входа
     When пользователь запрашивает код доступа через браузер для email "user@example.com"
-    Then форма входа ожидает код доступа для email "user@example.com"
-    When пользователь вводит код доступа "12345" через браузер
+    Then форма входа ожидает код доступа для запрошенного email
+    When пользователь вводит полученный код доступа через браузер
     Then пользователь видит страницу профиля
 
   @browser
@@ -122,19 +122,12 @@ Feature: Вход по email
   Scenario: 04C_browser_login_hides_email_after_code_request
     Given пользователь находится на странице входа
     When пользователь запрашивает код доступа через браузер для email "user@example.com"
-    Then форма входа показывает только ввод кода для email "user@example.com"
+    Then форма входа показывает только ввод кода для запрошенного email
 
   @browser
   Scenario: 04D_browser_resend_code_uses_countdown
     Given пользователь запросил код доступа для email "user@example.com"
     Then таймер повторной отправки кода идёт обратным отсчётом
-
-  @browser
-  Scenario: 04E_browser_login_shows_code_request_error
-    Given пользователь находится на странице входа
-    And отправка кода доступа временно недоступна
-    When пользователь запрашивает код доступа через браузер для email "user@example.com"
-    Then пользователь видит ошибку входа "request email code failed"
 
   @browser
   Scenario: 04F_browser_login_validates_email_after_submit

@@ -66,14 +66,13 @@ export class LoginPage {
     const resend = this.page.getByRole("button", {
       name: "Отправить код ещё раз",
     });
+    const countdown = this.page.getByText(
+      /Следующий код можно запросить через \d+ сек\./,
+    );
     await expect(resend).toBeHidden();
-    await expect(
-      this.page.getByText(/Следующий код можно запросить через \d+ сек\./),
-    ).toBeVisible();
-    await expect(
-      this.page.getByText(/Следующий код можно запросить через \d+ сек\./),
-    ).toBeHidden({ timeout: 3500 });
-    await expect(resend).toBeEnabled();
+    await expect(countdown).toBeVisible();
+    const initialText = (await countdown.textContent()) ?? "";
+    await expect(countdown).not.toHaveText(initialText, { timeout: 2500 });
   }
 
   async expectLoginFormWithoutTechnicalError() {

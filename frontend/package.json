@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test:bdd": "bddgen test --config test/bdd/playwright.config.ts && playwright test --config test/bdd/playwright.config.ts",
+    "test:bdd": "node test/bdd/support/assert-no-api-mocks.mjs && bddgen test --config test/bdd/playwright.config.ts && playwright test --config test/bdd/playwright.config.ts",
     "codegen": "graphql-codegen --config codegen.ts",
     "build": "tsc && vite build",
     "preview": "vite preview"
