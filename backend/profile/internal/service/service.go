@@ -11,6 +11,7 @@ import (
 type profileRepo interface {
 	GetByUserID(ctx context.Context, userID string) (*domain.Profile, error)
 	UpsertNickname(ctx context.Context, userID string, nickname string) (*domain.Profile, error)
+	IsNicknameTaken(ctx context.Context, nickname string) (bool, error)
 }
 
 // Service управляет профилями пользователей.
@@ -37,5 +38,22 @@ func (s *Service) GetByUserID(ctx context.Context, userID string) (*domain.Profi
 
 // SetNickname сохраняет уникальный nickname пользователя.
 func (s *Service) SetNickname(ctx context.Context, userID string, nickname string) (*domain.Profile, error) {
-	return s.repo.UpsertNickname(ctx, userID, strings.TrimSpace(nickname))
+	nickname = strings.TrimSpace(nickname)
+	if len([]rune(nickname)) < 2 {
+		return nil, domain.ErrNicknameTooShort
+	}
+	return s.repo.UpsertNickname(ctx, userID, nickname)
+}
+
+// IsNicknameAvailable проверяет доступность nickname.
+func (s *Service) IsNicknameAvailable(ctx context.Context, nickname string) (bool, error) {
+	nickname = strings.TrimSpace(nickname)
+	if len([]rune(nickname)) < 2 {
+		return false, domain.ErrNicknameTooShort
+	}
+	taken, err := s.repo.IsNicknameTaken(ctx, nickname)
+	if err != nil {
+		return false, err
+	}
+	return !taken, nil
 }

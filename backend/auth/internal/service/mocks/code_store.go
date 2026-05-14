@@ -8,6 +8,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/pure-golang/monorepo/backend/auth/internal/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,16 +40,16 @@ func (_m *CodeStore) EXPECT() *CodeStore_Expecter {
 }
 
 // DeleteCode provides a mock function for the type CodeStore
-func (_mock *CodeStore) DeleteCode(ctx context.Context, email string) error {
-	ret := _mock.Called(ctx, email)
+func (_mock *CodeStore) DeleteCode(ctx context.Context, email string, code string) error {
+	ret := _mock.Called(ctx, email, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteCode")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = returnFunc(ctx, email)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = returnFunc(ctx, email, code)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -63,11 +64,12 @@ type CodeStore_DeleteCode_Call struct {
 // DeleteCode is a helper method to define mock.On call
 //   - ctx context.Context
 //   - email string
-func (_e *CodeStore_Expecter) DeleteCode(ctx interface{}, email interface{}) *CodeStore_DeleteCode_Call {
-	return &CodeStore_DeleteCode_Call{Call: _e.mock.On("DeleteCode", ctx, email)}
+//   - code string
+func (_e *CodeStore_Expecter) DeleteCode(ctx interface{}, email interface{}, code interface{}) *CodeStore_DeleteCode_Call {
+	return &CodeStore_DeleteCode_Call{Call: _e.mock.On("DeleteCode", ctx, email, code)}
 }
 
-func (_c *CodeStore_DeleteCode_Call) Run(run func(ctx context.Context, email string)) *CodeStore_DeleteCode_Call {
+func (_c *CodeStore_DeleteCode_Call) Run(run func(ctx context.Context, email string, code string)) *CodeStore_DeleteCode_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -77,9 +79,14 @@ func (_c *CodeStore_DeleteCode_Call) Run(run func(ctx context.Context, email str
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -90,50 +97,41 @@ func (_c *CodeStore_DeleteCode_Call) Return(err error) *CodeStore_DeleteCode_Cal
 	return _c
 }
 
-func (_c *CodeStore_DeleteCode_Call) RunAndReturn(run func(ctx context.Context, email string) error) *CodeStore_DeleteCode_Call {
+func (_c *CodeStore_DeleteCode_Call) RunAndReturn(run func(ctx context.Context, email string, code string) error) *CodeStore_DeleteCode_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetCode provides a mock function for the type CodeStore
-func (_mock *CodeStore) GetCode(ctx context.Context, email string) (string, error) {
+// DeleteCodes provides a mock function for the type CodeStore
+func (_mock *CodeStore) DeleteCodes(ctx context.Context, email string) error {
 	ret := _mock.Called(ctx, email)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetCode")
+		panic("no return value specified for DeleteCodes")
 	}
 
-	var r0 string
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
-		return returnFunc(ctx, email)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = returnFunc(ctx, email)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, email)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
-// CodeStore_GetCode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCode'
-type CodeStore_GetCode_Call struct {
+// CodeStore_DeleteCodes_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteCodes'
+type CodeStore_DeleteCodes_Call struct {
 	*mock.Call
 }
 
-// GetCode is a helper method to define mock.On call
+// DeleteCodes is a helper method to define mock.On call
 //   - ctx context.Context
 //   - email string
-func (_e *CodeStore_Expecter) GetCode(ctx interface{}, email interface{}) *CodeStore_GetCode_Call {
-	return &CodeStore_GetCode_Call{Call: _e.mock.On("GetCode", ctx, email)}
+func (_e *CodeStore_Expecter) DeleteCodes(ctx interface{}, email interface{}) *CodeStore_DeleteCodes_Call {
+	return &CodeStore_DeleteCodes_Call{Call: _e.mock.On("DeleteCodes", ctx, email)}
 }
 
-func (_c *CodeStore_GetCode_Call) Run(run func(ctx context.Context, email string)) *CodeStore_GetCode_Call {
+func (_c *CodeStore_DeleteCodes_Call) Run(run func(ctx context.Context, email string)) *CodeStore_DeleteCodes_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -151,12 +149,205 @@ func (_c *CodeStore_GetCode_Call) Run(run func(ctx context.Context, email string
 	return _c
 }
 
-func (_c *CodeStore_GetCode_Call) Return(s string, err error) *CodeStore_GetCode_Call {
-	_c.Call.Return(s, err)
+func (_c *CodeStore_DeleteCodes_Call) Return(err error) *CodeStore_DeleteCodes_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *CodeStore_GetCode_Call) RunAndReturn(run func(ctx context.Context, email string) (string, error)) *CodeStore_GetCode_Call {
+func (_c *CodeStore_DeleteCodes_Call) RunAndReturn(run func(ctx context.Context, email string) error) *CodeStore_DeleteCodes_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteEmailCodeCooldown provides a mock function for the type CodeStore
+func (_mock *CodeStore) DeleteEmailCodeCooldown(ctx context.Context, email string) error {
+	ret := _mock.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteEmailCodeCooldown")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// CodeStore_DeleteEmailCodeCooldown_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteEmailCodeCooldown'
+type CodeStore_DeleteEmailCodeCooldown_Call struct {
+	*mock.Call
+}
+
+// DeleteEmailCodeCooldown is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+func (_e *CodeStore_Expecter) DeleteEmailCodeCooldown(ctx interface{}, email interface{}) *CodeStore_DeleteEmailCodeCooldown_Call {
+	return &CodeStore_DeleteEmailCodeCooldown_Call{Call: _e.mock.On("DeleteEmailCodeCooldown", ctx, email)}
+}
+
+func (_c *CodeStore_DeleteEmailCodeCooldown_Call) Run(run func(ctx context.Context, email string)) *CodeStore_DeleteEmailCodeCooldown_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *CodeStore_DeleteEmailCodeCooldown_Call) Return(err error) *CodeStore_DeleteEmailCodeCooldown_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *CodeStore_DeleteEmailCodeCooldown_Call) RunAndReturn(run func(ctx context.Context, email string) error) *CodeStore_DeleteEmailCodeCooldown_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCodes provides a mock function for the type CodeStore
+func (_mock *CodeStore) GetCodes(ctx context.Context, email string) ([]string, error) {
+	ret := _mock.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCodes")
+	}
+
+	var r0 []string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) ([]string, error)); ok {
+		return returnFunc(ctx, email)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) []string); ok {
+		r0 = returnFunc(ctx, email)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// CodeStore_GetCodes_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCodes'
+type CodeStore_GetCodes_Call struct {
+	*mock.Call
+}
+
+// GetCodes is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+func (_e *CodeStore_Expecter) GetCodes(ctx interface{}, email interface{}) *CodeStore_GetCodes_Call {
+	return &CodeStore_GetCodes_Call{Call: _e.mock.On("GetCodes", ctx, email)}
+}
+
+func (_c *CodeStore_GetCodes_Call) Run(run func(ctx context.Context, email string)) *CodeStore_GetCodes_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *CodeStore_GetCodes_Call) Return(strings []string, err error) *CodeStore_GetCodes_Call {
+	_c.Call.Return(strings, err)
+	return _c
+}
+
+func (_c *CodeStore_GetCodes_Call) RunAndReturn(run func(ctx context.Context, email string) ([]string, error)) *CodeStore_GetCodes_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetEmailCodeCooldown provides a mock function for the type CodeStore
+func (_mock *CodeStore) GetEmailCodeCooldown(ctx context.Context, email string) (*domain.EmailCodeCooldown, error) {
+	ret := _mock.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetEmailCodeCooldown")
+	}
+
+	var r0 *domain.EmailCodeCooldown
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*domain.EmailCodeCooldown, error)); ok {
+		return returnFunc(ctx, email)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *domain.EmailCodeCooldown); ok {
+		r0 = returnFunc(ctx, email)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.EmailCodeCooldown)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// CodeStore_GetEmailCodeCooldown_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetEmailCodeCooldown'
+type CodeStore_GetEmailCodeCooldown_Call struct {
+	*mock.Call
+}
+
+// GetEmailCodeCooldown is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+func (_e *CodeStore_Expecter) GetEmailCodeCooldown(ctx interface{}, email interface{}) *CodeStore_GetEmailCodeCooldown_Call {
+	return &CodeStore_GetEmailCodeCooldown_Call{Call: _e.mock.On("GetEmailCodeCooldown", ctx, email)}
+}
+
+func (_c *CodeStore_GetEmailCodeCooldown_Call) Run(run func(ctx context.Context, email string)) *CodeStore_GetEmailCodeCooldown_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *CodeStore_GetEmailCodeCooldown_Call) Return(emailCodeCooldown *domain.EmailCodeCooldown, err error) *CodeStore_GetEmailCodeCooldown_Call {
+	_c.Call.Return(emailCodeCooldown, err)
+	return _c
+}
+
+func (_c *CodeStore_GetEmailCodeCooldown_Call) RunAndReturn(run func(ctx context.Context, email string) (*domain.EmailCodeCooldown, error)) *CodeStore_GetEmailCodeCooldown_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -284,6 +475,63 @@ func (_c *CodeStore_RevokeToken_Call) RunAndReturn(run func(ctx context.Context,
 	return _c
 }
 
+// RevokeUserTokens provides a mock function for the type CodeStore
+func (_mock *CodeStore) RevokeUserTokens(ctx context.Context, userID string) error {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RevokeUserTokens")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// CodeStore_RevokeUserTokens_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RevokeUserTokens'
+type CodeStore_RevokeUserTokens_Call struct {
+	*mock.Call
+}
+
+// RevokeUserTokens is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID string
+func (_e *CodeStore_Expecter) RevokeUserTokens(ctx interface{}, userID interface{}) *CodeStore_RevokeUserTokens_Call {
+	return &CodeStore_RevokeUserTokens_Call{Call: _e.mock.On("RevokeUserTokens", ctx, userID)}
+}
+
+func (_c *CodeStore_RevokeUserTokens_Call) Run(run func(ctx context.Context, userID string)) *CodeStore_RevokeUserTokens_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *CodeStore_RevokeUserTokens_Call) Return(err error) *CodeStore_RevokeUserTokens_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *CodeStore_RevokeUserTokens_Call) RunAndReturn(run func(ctx context.Context, userID string) error) *CodeStore_RevokeUserTokens_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SaveCode provides a mock function for the type CodeStore
 func (_mock *CodeStore) SaveCode(ctx context.Context, email string, code string, ttl time.Duration) error {
 	ret := _mock.Called(ctx, email, code, ttl)
@@ -349,6 +597,138 @@ func (_c *CodeStore_SaveCode_Call) Return(err error) *CodeStore_SaveCode_Call {
 }
 
 func (_c *CodeStore_SaveCode_Call) RunAndReturn(run func(ctx context.Context, email string, code string, ttl time.Duration) error) *CodeStore_SaveCode_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveEmailCodeCooldown provides a mock function for the type CodeStore
+func (_mock *CodeStore) SaveEmailCodeCooldown(ctx context.Context, email string, cooldown domain.EmailCodeCooldown, ttl time.Duration) error {
+	ret := _mock.Called(ctx, email, cooldown, ttl)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveEmailCodeCooldown")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, domain.EmailCodeCooldown, time.Duration) error); ok {
+		r0 = returnFunc(ctx, email, cooldown, ttl)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// CodeStore_SaveEmailCodeCooldown_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveEmailCodeCooldown'
+type CodeStore_SaveEmailCodeCooldown_Call struct {
+	*mock.Call
+}
+
+// SaveEmailCodeCooldown is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+//   - cooldown domain.EmailCodeCooldown
+//   - ttl time.Duration
+func (_e *CodeStore_Expecter) SaveEmailCodeCooldown(ctx interface{}, email interface{}, cooldown interface{}, ttl interface{}) *CodeStore_SaveEmailCodeCooldown_Call {
+	return &CodeStore_SaveEmailCodeCooldown_Call{Call: _e.mock.On("SaveEmailCodeCooldown", ctx, email, cooldown, ttl)}
+}
+
+func (_c *CodeStore_SaveEmailCodeCooldown_Call) Run(run func(ctx context.Context, email string, cooldown domain.EmailCodeCooldown, ttl time.Duration)) *CodeStore_SaveEmailCodeCooldown_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 domain.EmailCodeCooldown
+		if args[2] != nil {
+			arg2 = args[2].(domain.EmailCodeCooldown)
+		}
+		var arg3 time.Duration
+		if args[3] != nil {
+			arg3 = args[3].(time.Duration)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *CodeStore_SaveEmailCodeCooldown_Call) Return(err error) *CodeStore_SaveEmailCodeCooldown_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *CodeStore_SaveEmailCodeCooldown_Call) RunAndReturn(run func(ctx context.Context, email string, cooldown domain.EmailCodeCooldown, ttl time.Duration) error) *CodeStore_SaveEmailCodeCooldown_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveUserToken provides a mock function for the type CodeStore
+func (_mock *CodeStore) SaveUserToken(ctx context.Context, userID string, tokenID string) error {
+	ret := _mock.Called(ctx, userID, tokenID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveUserToken")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = returnFunc(ctx, userID, tokenID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// CodeStore_SaveUserToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveUserToken'
+type CodeStore_SaveUserToken_Call struct {
+	*mock.Call
+}
+
+// SaveUserToken is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID string
+//   - tokenID string
+func (_e *CodeStore_Expecter) SaveUserToken(ctx interface{}, userID interface{}, tokenID interface{}) *CodeStore_SaveUserToken_Call {
+	return &CodeStore_SaveUserToken_Call{Call: _e.mock.On("SaveUserToken", ctx, userID, tokenID)}
+}
+
+func (_c *CodeStore_SaveUserToken_Call) Run(run func(ctx context.Context, userID string, tokenID string)) *CodeStore_SaveUserToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *CodeStore_SaveUserToken_Call) Return(err error) *CodeStore_SaveUserToken_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *CodeStore_SaveUserToken_Call) RunAndReturn(run func(ctx context.Context, userID string, tokenID string) error) *CodeStore_SaveUserToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

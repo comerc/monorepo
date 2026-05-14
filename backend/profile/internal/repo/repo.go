@@ -67,3 +67,10 @@ func (r *Repo) UpsertNickname(ctx context.Context, userID string, nickname strin
 	}
 	return &profile, nil
 }
+
+// IsNicknameTaken проверяет, занят ли nickname.
+func (r *Repo) IsNicknameTaken(ctx context.Context, nickname string) (bool, error) {
+	var exists bool
+	err := r.pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM profiles WHERE nickname = $1)`, nickname).Scan(&exists)
+	return exists, err
+}

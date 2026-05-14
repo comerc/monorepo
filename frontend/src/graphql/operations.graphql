@@ -1,6 +1,8 @@
 mutation RequestEmailCode($email: String!) {
   requestEmailCode(email: $email) {
     accepted
+    retryAfterSeconds
+    nextAllowedAt
   }
 }
 
@@ -12,8 +14,8 @@ mutation LoginWithEmailCode($email: String!, $code: String!) {
   }
 }
 
-mutation Logout {
-  logout {
+mutation Logout($allDevices: Boolean) {
+  logout(allDevices: $allDevices) {
     revoked
   }
 }
@@ -22,6 +24,13 @@ query MyProfile {
   myProfile {
     userID
     nickname
+  }
+}
+
+query NicknameAvailability($nickname: String!) {
+  nicknameAvailability(nickname: $nickname) {
+    nickname
+    available
   }
 }
 

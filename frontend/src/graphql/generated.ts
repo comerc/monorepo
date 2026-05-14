@@ -43,6 +43,11 @@ export type MutationLoginWithEmailCodeArgs = {
 };
 
 
+export type MutationLogoutArgs = {
+  allDevices?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type MutationRequestEmailCodeArgs = {
   email: Scalars['String']['input'];
 };
@@ -50,6 +55,12 @@ export type MutationRequestEmailCodeArgs = {
 
 export type MutationSetNicknameArgs = {
   nickname: Scalars['String']['input'];
+};
+
+export type NicknameAvailability = {
+  __typename?: 'NicknameAvailability';
+  available: Scalars['Boolean']['output'];
+  nickname: Scalars['String']['output'];
 };
 
 export type Profile = {
@@ -62,12 +73,20 @@ export type Query = {
   __typename?: 'Query';
   authStatus: Scalars['String']['output'];
   myProfile: Profile;
+  nicknameAvailability: NicknameAvailability;
   profileStatus: Scalars['String']['output'];
+};
+
+
+export type QueryNicknameAvailabilityArgs = {
+  nickname: Scalars['String']['input'];
 };
 
 export type RequestEmailCodePayload = {
   __typename?: 'RequestEmailCodePayload';
   accepted: Scalars['Boolean']['output'];
+  nextAllowedAt?: Maybe<Scalars['String']['output']>;
+  retryAfterSeconds: Scalars['Int']['output'];
 };
 
 export type RequestEmailCodeMutationVariables = Exact<{
@@ -75,7 +94,7 @@ export type RequestEmailCodeMutationVariables = Exact<{
 }>;
 
 
-export type RequestEmailCodeMutation = { requestEmailCode: { accepted: boolean } };
+export type RequestEmailCodeMutation = { requestEmailCode: { accepted: boolean, retryAfterSeconds: number, nextAllowedAt: string | null } };
 
 export type LoginWithEmailCodeMutationVariables = Exact<{
   email: string;
@@ -85,7 +104,9 @@ export type LoginWithEmailCodeMutationVariables = Exact<{
 
 export type LoginWithEmailCodeMutation = { loginWithEmailCode: { token: string, userID: string, email: string } };
 
-export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+export type LogoutMutationVariables = Exact<{
+  allDevices?: boolean | null | undefined;
+}>;
 
 
 export type LogoutMutation = { logout: { revoked: boolean } };
@@ -94,6 +115,13 @@ export type MyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MyProfileQuery = { myProfile: { userID: string, nickname: string | null } };
+
+export type NicknameAvailabilityQueryVariables = Exact<{
+  nickname: string;
+}>;
+
+
+export type NicknameAvailabilityQuery = { nicknameAvailability: { nickname: string, available: boolean } };
 
 export type SetNicknameMutationVariables = Exact<{
   nickname: string;
@@ -107,6 +135,8 @@ export const RequestEmailCodeDocument = gql`
     mutation RequestEmailCode($email: String!) {
   requestEmailCode(email: $email) {
     accepted
+    retryAfterSeconds
+    nextAllowedAt
   }
 }
     `;
@@ -120,8 +150,8 @@ export const LoginWithEmailCodeDocument = gql`
 }
     `;
 export const LogoutDocument = gql`
-    mutation Logout {
-  logout {
+    mutation Logout($allDevices: Boolean) {
+  logout(allDevices: $allDevices) {
     revoked
   }
 }
@@ -131,6 +161,14 @@ export const MyProfileDocument = gql`
   myProfile {
     userID
     nickname
+  }
+}
+    `;
+export const NicknameAvailabilityDocument = gql`
+    query NicknameAvailability($nickname: String!) {
+  nicknameAvailability(nickname: $nickname) {
+    nickname
+    available
   }
 }
     `;
@@ -161,6 +199,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     MyProfile(variables?: MyProfileQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<MyProfileQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<MyProfileQuery>({ document: MyProfileDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'MyProfile', 'query', variables);
+    },
+    NicknameAvailability(variables: NicknameAvailabilityQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<NicknameAvailabilityQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<NicknameAvailabilityQuery>({ document: NicknameAvailabilityDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'NicknameAvailability', 'query', variables);
     },
     SetNickname(variables: SetNicknameMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SetNicknameMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SetNicknameMutation>({ document: SetNicknameDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SetNickname', 'mutation', variables);

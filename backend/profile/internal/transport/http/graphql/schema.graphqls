@@ -9,8 +9,14 @@ type Profile @key(fields: "userID") {
 type Query {
   profileStatus: String! @shareable
   myProfile: Profile!
+  nicknameAvailability(nickname: String!): NicknameAvailability!
 }
 
 type Mutation {
   setNickname(nickname: String!): Profile!
+}
+
+type NicknameAvailability {
+  nickname: String!
+  available: Boolean!
 }

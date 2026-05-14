@@ -10,7 +10,7 @@
 // Конфигурация:
 //
 //	ENVIRONMENT     — окружение приложения (default: development)
-//	AUTH_CODE_TTL   — время жизни email-кода (default: 10m)
+//	AUTH_CODE_TTL   — время жизни email-кода (default: 5m)
 //	AUTH_JWT_SECRET — HMAC-секрет JWT (default: development-secret, production обязан переопределить)
 //	USER_GRPC_ADDR  — адрес user-сервиса (default: localhost:50051)
 //	SMTP_HOST       — SMTP-хост Mailpit или провайдера (default: localhost)

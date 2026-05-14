@@ -3,24 +3,33 @@ package service
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"math/big"
+	netmail "net/mail"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/pure-golang/adapters/mail"
+	amail "github.com/pure-golang/adapters/mail"
 
 	"github.com/pure-golang/monorepo/backend/auth/internal/domain"
 )
 
 type codeStore interface {
 	SaveCode(ctx context.Context, email string, code string, ttl time.Duration) error
-	GetCode(ctx context.Context, email string) (string, error)
-	DeleteCode(ctx context.Context, email string) error
+	GetCodes(ctx context.Context, email string) ([]string, error)
+	DeleteCode(ctx context.Context, email string, code string) error
+	DeleteCodes(ctx context.Context, email string) error
+	GetEmailCodeCooldown(ctx context.Context, email string) (*domain.EmailCodeCooldown, error)
+	SaveEmailCodeCooldown(ctx context.Context, email string, cooldown domain.EmailCodeCooldown, ttl time.Duration) error
+	DeleteEmailCodeCooldown(ctx context.Context, email string) error
+	SaveUserToken(ctx context.Context, userID string, tokenID string) error
 	RevokeToken(ctx context.Context, tokenID string) error
+	RevokeUserTokens(ctx context.Context, userID string) error
 	IsTokenRevoked(ctx context.Context, tokenID string) (bool, error)
 }
 
@@ -29,10 +38,13 @@ type userClient interface {
 }
 
 type mailSender interface {
-	Send(ctx context.Context, emails ...mail.Email) error
+	Send(ctx context.Context, emails ...amail.Email) error
 }
 
 type codeGenerator = func() (string, error)
+type clock = func() time.Time
+
+var cooldownSteps = []time.Duration{30 * time.Second, 60 * time.Second, 120 * time.Second, 24 * time.Hour}
 
 // Config описывает параметры сервиса аутентификации.
 type Config struct {
@@ -47,6 +59,7 @@ type Service struct {
 	userClient    userClient
 	mailSender    mailSender
 	codeGenerator codeGenerator
+	clock         clock
 	config        Config
 	logger        *slog.Logger
 }
@@ -58,6 +71,7 @@ func New(config Config, codeStore codeStore, userClient userClient, mailSender m
 		userClient:    userClient,
 		mailSender:    mailSender,
 		codeGenerator: generateCode,
+		clock:         time.Now,
 		config:        config,
 		logger:        slog.Default().With("module", "service.auth"),
 	}
@@ -69,41 +83,84 @@ func (s *Service) WithCodeGenerator(generator codeGenerator) *Service {
 	return s
 }
 
+// WithClock подменяет источник времени для тестов.
+func (s *Service) WithClock(clock clock) *Service {
+	s.clock = clock
+	return s
+}
+
 // RequestCode отправляет одноразовый код доступа на email.
-func (s *Service) RequestCode(ctx context.Context, email string) error {
-	email = normalizeEmail(email)
+func (s *Service) RequestCode(ctx context.Context, email string) (*domain.RequestCodeResult, error) {
+	email, err := normalizeEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	now := s.clock().UTC()
+	cooldown, err := s.codeStore.GetEmailCodeCooldown(ctx, email)
+	if err != nil && !errors.Is(err, domain.ErrInvalidCode) {
+		return nil, err
+	}
+	if cooldown != nil && now.Unix() < cooldown.NextAllowedAt {
+		nextAllowedAt := time.Unix(cooldown.NextAllowedAt, 0).UTC()
+		return &domain.RequestCodeResult{
+			Accepted:          false,
+			RetryAfterSeconds: secondsUntil(nextAllowedAt, now),
+			NextAllowedAt:     nextAllowedAt.Format(time.RFC3339),
+		}, nil
+	}
+
 	code, err := s.codeGenerator()
 	if err != nil {
-		return err
+		return nil, err
+	}
+	nextCooldown := nextEmailCodeCooldown(cooldown, now)
+	if err := s.codeStore.SaveEmailCodeCooldown(ctx, email, nextCooldown, time.Unix(nextCooldown.ResetAt, 0).Sub(now)); err != nil {
+		return nil, err
 	}
 	if err := s.codeStore.SaveCode(ctx, email, code, s.config.CodeTTL); err != nil {
-		return err
+		if cleanupErr := s.codeStore.DeleteEmailCodeCooldown(ctx, email); cleanupErr != nil {
+			return nil, errors.Join(err, cleanupErr)
+		}
+		return nil, err
 	}
-	err = s.mailSender.Send(ctx, mail.Email{
-		From:    mail.Address{Address: s.config.MailFrom},
-		To:      []mail.Address{{Address: email}},
+	err = s.mailSender.Send(ctx, amail.Email{
+		From:    amail.Address{Address: s.config.MailFrom},
+		To:      []amail.Address{{Address: email}},
 		Subject: "Your access code",
 		Body:    fmt.Sprintf("Your access code is %s", code),
 	})
 	if err != nil {
-		return err
+		s.logger.Warn("Access code delivery failed", slog.String("email", email), slog.Any("err", err))
+		cleanupErr := errors.Join(
+			s.codeStore.DeleteCode(ctx, email, code),
+			s.codeStore.DeleteEmailCodeCooldown(ctx, email),
+		)
+		if cleanupErr != nil {
+			return nil, errors.Join(err, cleanupErr)
+		}
+		return nil, err
 	}
-	s.logger.Info("Access code sent", slog.String("email", email))
-	return nil
+	nextAllowedAt := time.Unix(nextCooldown.NextAllowedAt, 0).UTC()
+	s.logger.Info("Access code accepted", slog.String("email", email))
+	return &domain.RequestCodeResult{
+		Accepted:          true,
+		RetryAfterSeconds: secondsUntil(nextAllowedAt, now),
+		NextAllowedAt:     nextAllowedAt.Format(time.RFC3339),
+	}, nil
 }
 
 // LoginByCode проверяет код и выдаёт JWT-токен.
 func (s *Service) LoginByCode(ctx context.Context, email string, code string) (*domain.Session, error) {
-	email = normalizeEmail(email)
-	storedCode, err := s.codeStore.GetCode(ctx, email)
+	email, err := normalizeEmail(email)
 	if err != nil {
 		return nil, err
 	}
-	if storedCode != code {
-		return nil, domain.ErrInvalidCode
-	}
-	if err := s.codeStore.DeleteCode(ctx, email); err != nil {
+	storedCodes, err := s.codeStore.GetCodes(ctx, email)
+	if err != nil {
 		return nil, err
+	}
+	if !containsString(storedCodes, strings.TrimSpace(code)) {
+		return nil, domain.ErrInvalidCode
 	}
 	user, err := s.userClient.GetOrCreateByEmail(ctx, email)
 	if err != nil {
@@ -117,6 +174,15 @@ func (s *Service) LoginByCode(ctx context.Context, email string, code string) (*
 	token, err := s.signToken(tokenID, user)
 	if err != nil {
 		return nil, err
+	}
+	if err := s.codeStore.SaveUserToken(ctx, user.ID, tokenID); err != nil {
+		return nil, err
+	}
+	if err := s.codeStore.DeleteCodes(ctx, email); err != nil {
+		return nil, err
+	}
+	if err := s.codeStore.DeleteEmailCodeCooldown(ctx, email); err != nil {
+		s.logger.Warn("Email code cooldown reset failed", slog.String("email", email), slog.Any("err", err))
 	}
 	return &domain.Session{
 		Token:   token,
@@ -149,6 +215,18 @@ func (s *Service) Logout(ctx context.Context, token string) error {
 		return err
 	}
 	return s.codeStore.RevokeToken(ctx, claims.TokenID)
+}
+
+// LogoutEverywhere отзывает все активные JWT-токены пользователя.
+func (s *Service) LogoutEverywhere(ctx context.Context, token string) error {
+	claims, err := s.ValidateToken(ctx, token)
+	if err != nil {
+		return err
+	}
+	if err := s.codeStore.RevokeToken(ctx, claims.TokenID); err != nil {
+		return err
+	}
+	return s.codeStore.RevokeUserTokens(ctx, claims.UserID)
 }
 
 func (s *Service) signToken(tokenID string, user *domain.User) (string, error) {
@@ -186,13 +264,60 @@ func (s *Service) parseToken(rawToken string) (*domain.TokenClaims, error) {
 }
 
 func generateCode() (string, error) {
-	n, err := rand.Int(rand.Reader, big.NewInt(10000))
+	n, err := rand.Int(rand.Reader, big.NewInt(100000))
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%04d", n.Int64()), nil
+	return fmt.Sprintf("%05d", n.Int64()), nil
 }
 
-func normalizeEmail(email string) string {
-	return strings.ToLower(strings.TrimSpace(email))
+func normalizeEmail(email string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	if email == "" {
+		return "", errors.New("email is required")
+	}
+	address, err := netmail.ParseAddress(email)
+	if err != nil || address.Address != email || !strings.Contains(email, "@") {
+		return "", domain.ErrInvalidEmail
+	}
+	return email, nil
+}
+
+func nextEmailCodeCooldown(current *domain.EmailCodeCooldown, now time.Time) domain.EmailCodeCooldown {
+	count := 0
+	resetAt := now.Add(24 * time.Hour).Unix()
+	if current != nil && now.Unix() < current.ResetAt {
+		count = current.Count
+		resetAt = current.ResetAt
+	}
+	stepIndex := count
+	if stepIndex >= len(cooldownSteps) {
+		stepIndex = len(cooldownSteps) - 1
+	}
+	nextAllowedAt := now.Add(cooldownSteps[stepIndex])
+	if stepIndex == len(cooldownSteps)-1 {
+		resetAt = nextAllowedAt.Unix()
+	}
+	return domain.EmailCodeCooldown{
+		Count:         count + 1,
+		NextAllowedAt: nextAllowedAt.Unix(),
+		ResetAt:       resetAt,
+	}
+}
+
+func containsString(values []string, needle string) bool {
+	for _, value := range values {
+		if value == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func secondsUntil(nextAllowedAt time.Time, now time.Time) int {
+	seconds := nextAllowedAt.Sub(now).Seconds()
+	if seconds <= 0 {
+		return 0
+	}
+	return int(math.Ceil(seconds))
 }

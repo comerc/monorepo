@@ -14,10 +14,15 @@ import (
 
 // RequestEmailCode is the resolver for the requestEmailCode field.
 func (r *mutationResolver) RequestEmailCode(ctx context.Context, email string) (*model.RequestEmailCodePayload, error) {
-	if err := r.authService.RequestCode(ctx, email); err != nil {
+	result, err := r.authService.RequestCode(ctx, email)
+	if err != nil {
 		return nil, err
 	}
-	return &model.RequestEmailCodePayload{Accepted: true}, nil
+	return &model.RequestEmailCodePayload{
+		Accepted:          result.Accepted,
+		RetryAfterSeconds: result.RetryAfterSeconds,
+		NextAllowedAt:     &result.NextAllowedAt,
+	}, nil
 }
 
 // LoginWithEmailCode is the resolver for the loginWithEmailCode field.
@@ -34,8 +39,15 @@ func (r *mutationResolver) LoginWithEmailCode(ctx context.Context, email string,
 }
 
 // Logout is the resolver for the logout field.
-func (r *mutationResolver) Logout(ctx context.Context) (*model.LogoutPayload, error) {
-	if err := r.authService.Logout(ctx, authTokenFromContext(ctx)); err != nil {
+func (r *mutationResolver) Logout(ctx context.Context, allDevices *bool) (*model.LogoutPayload, error) {
+	token := authTokenFromContext(ctx)
+	var err error
+	if allDevices != nil && *allDevices {
+		err = r.authService.LogoutEverywhere(ctx, token)
+	} else {
+		err = r.authService.Logout(ctx, token)
+	}
+	if err != nil {
 		return nil, err
 	}
 	return &model.LogoutPayload{Revoked: true}, nil

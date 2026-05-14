@@ -7,6 +7,8 @@ package resolvers
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/pure-golang/monorepo/backend/profile/internal/domain"
 	graphql1 "github.com/pure-golang/monorepo/backend/profile/internal/transport/http/graphql"
@@ -15,7 +17,7 @@ import (
 
 // SetNickname is the resolver for the setNickname field.
 func (r *mutationResolver) SetNickname(ctx context.Context, nickname string) (*model.Profile, error) {
-	user, err := r.userService.GetUser(ctx, userIDFromContext(ctx))
+	user, err := r.currentUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +35,7 @@ func (r *queryResolver) ProfileStatus(ctx context.Context) (string, error) {
 
 // MyProfile is the resolver for the myProfile field.
 func (r *queryResolver) MyProfile(ctx context.Context) (*model.Profile, error) {
-	user, err := r.userService.GetUser(ctx, userIDFromContext(ctx))
+	user, err := r.currentUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +46,33 @@ func (r *queryResolver) MyProfile(ctx context.Context) (*model.Profile, error) {
 	return profileToModel(profile), nil
 }
 
+// NicknameAvailability is the resolver for the nicknameAvailability field.
+func (r *queryResolver) NicknameAvailability(ctx context.Context, nickname string) (*model.NicknameAvailability, error) {
+	normalizedNickname := strings.TrimSpace(nickname)
+	if userID := userIDFromContext(ctx); userID != "" {
+		profile, err := r.profileService.GetByUserID(ctx, userID)
+		if err != nil && !errors.Is(err, domain.ErrProfileNotFound) {
+			return nil, err
+		}
+		if profile != nil && profile.Nickname != nil && *profile.Nickname == normalizedNickname {
+			return &model.NicknameAvailability{Nickname: normalizedNickname, Available: true}, nil
+		}
+	}
+	available, err := r.profileService.IsNicknameAvailable(ctx, normalizedNickname)
+	if err != nil {
+		return nil, err
+	}
+	return &model.NicknameAvailability{Nickname: normalizedNickname, Available: available}, nil
+}
+
+func (r *Resolver) currentUser(ctx context.Context) (*domain.User, error) {
+	userID := userIDFromContext(ctx)
+	if userID == "" {
+		return nil, domain.ErrUnauthenticated
+	}
+	return r.userService.GetUser(ctx, userID)
+}
+
 // Mutation returns graphql1.MutationResolver implementation.
 func (r *Resolver) Mutation() graphql1.MutationResolver { return &mutationResolver{r} }
 
@@ -52,13 +81,3 @@ func (r *Resolver) Query() graphql1.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-func profileToModel(profile *domain.Profile) *model.Profile {
-	if profile == nil {
-		return nil
-	}
-	return &model.Profile{
-		UserID:   profile.UserID,
-		Nickname: profile.Nickname,
-	}
-}

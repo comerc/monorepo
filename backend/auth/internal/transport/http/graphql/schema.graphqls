@@ -8,11 +8,13 @@ type Query {
 type Mutation {
   requestEmailCode(email: String!): RequestEmailCodePayload!
   loginWithEmailCode(email: String!, code: String!): LoginPayload!
-  logout: LogoutPayload!
+  logout(allDevices: Boolean = false): LogoutPayload!
 }
 
 type RequestEmailCodePayload {
   accepted: Boolean!
+  retryAfterSeconds: Int!
+  nextAllowedAt: String
 }
 
 type LoginPayload {

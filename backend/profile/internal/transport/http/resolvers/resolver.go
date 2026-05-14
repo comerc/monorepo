@@ -9,6 +9,7 @@ import (
 type profileService interface {
 	GetByUserID(ctx context.Context, userID string) (*domain.Profile, error)
 	SetNickname(ctx context.Context, userID string, nickname string) (*domain.Profile, error)
+	IsNicknameAvailable(ctx context.Context, nickname string) (bool, error)
 }
 
 type userService interface {

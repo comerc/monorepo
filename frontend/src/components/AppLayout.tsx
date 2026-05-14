@@ -1,36 +1,54 @@
-import { Outlet, useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { Button, Layout, Space, Typography } from 'antd'
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
-import { useAuth } from '../auth/authStore'
-import { graphqlSdk } from '../graphql/client'
-import ThemeSwitcher from './ThemeSwitcher'
+import { Outlet, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Button, Checkbox, Layout, Modal, Space, Typography } from "antd";
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { useAuth } from "../auth/authStore";
+import { graphqlSdk } from "../graphql/client";
+import ThemeSwitcher from "./ThemeSwitcher";
 
-const { Header, Content, Sider } = Layout
-const { Text } = Typography
+const { Header, Content, Sider } = Layout;
+const { Text } = Typography;
 
 export default function AppLayout() {
-  const navigate = useNavigate()
-  const auth = useAuth()
+  const navigate = useNavigate();
+  const auth = useAuth();
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [logoutEverywhere, setLogoutEverywhere] = useState(false);
 
   const profileQuery = useQuery({
-    queryKey: ['my-profile', auth.user?.id],
-    queryFn: () => graphqlSdk(auth.token).MyProfile().then((data) => data.myProfile),
+    queryKey: ["my-profile", auth.user?.id],
+    queryFn: () =>
+      graphqlSdk(auth.token)
+        .MyProfile()
+        .then((data) => data.myProfile),
     enabled: Boolean(auth.token),
-  })
+  });
 
-  const displayName = profileQuery.data?.nickname || auth.user?.nickname || auth.user?.email
+  const displayName =
+    profileQuery.data?.nickname || auth.user?.nickname || auth.user?.email;
+
+  useEffect(() => {
+    if (
+      profileQuery.isError &&
+      profileQuery.error instanceof Error &&
+      profileQuery.error.message.includes("unauthenticated")
+    ) {
+      auth.logout();
+      navigate("/login?next=%2Fprofile", { replace: true });
+    }
+  }, [auth, navigate, profileQuery.error, profileQuery.isError]);
 
   const handleLogout = async () => {
     try {
-      await graphqlSdk(auth.token).Logout()
+      await graphqlSdk(auth.token).Logout({ allDevices: logoutEverywhere });
     } catch {
       // Ошибку logout на сервере не показываем: локальная сессия всё равно закрывается
     } finally {
-      auth.logout()
-      navigate('/login')
+      auth.logout();
+      navigate("/login");
     }
-  }
+  };
 
   return (
     <Layout className="min-h-screen">
@@ -45,7 +63,11 @@ export default function AppLayout() {
           <Space>
             <Text>{displayName}</Text>
             <ThemeSwitcher />
-            <Button icon={<LogoutOutlined />} type="text" onClick={handleLogout}>
+            <Button
+              icon={<LogoutOutlined />}
+              type="text"
+              onClick={() => setLogoutOpen(true)}
+            >
               Выйти
             </Button>
           </Space>
@@ -54,6 +76,21 @@ export default function AppLayout() {
           <Outlet />
         </Content>
       </Layout>
+      <Modal
+        okText="Выйти"
+        open={logoutOpen}
+        title="Выйти из системы"
+        width={360}
+        onCancel={() => setLogoutOpen(false)}
+        onOk={handleLogout}
+      >
+        <Checkbox
+          checked={logoutEverywhere}
+          onChange={(event) => setLogoutEverywhere(event.target.checked)}
+        >
+          на всех устройствах
+        </Checkbox>
+      </Modal>
     </Layout>
-  )
+  );
 }

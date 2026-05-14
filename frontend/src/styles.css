@@ -33,3 +33,14 @@ body,
 body {
   @apply bg-app-bg dark:bg-app-bg-dark;
 }
+
+@layer components {
+  html.dark input:-webkit-autofill,
+  html.dark input:-webkit-autofill:hover,
+  html.dark input:-webkit-autofill:focus {
+    -webkit-text-fill-color: rgb(255 255 255 / 88%);
+    caret-color: rgb(255 255 255 / 88%);
+    transition: background-color 9999s ease-out;
+    box-shadow: 0 0 0 1000px #141414 inset;
+  }
+}

@@ -50,7 +50,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		LoginWithEmailCode func(childComplexity int, email string, code string) int
-		Logout             func(childComplexity int) int
+		Logout             func(childComplexity int, allDevices *bool) int
 		RequestEmailCode   func(childComplexity int, email string) int
 	}
 
@@ -60,7 +60,9 @@ type ComplexityRoot struct {
 	}
 
 	RequestEmailCodePayload struct {
-		Accepted func(childComplexity int) int
+		Accepted          func(childComplexity int) int
+		NextAllowedAt     func(childComplexity int) int
+		RetryAfterSeconds func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -71,7 +73,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	RequestEmailCode(ctx context.Context, email string) (*model.RequestEmailCodePayload, error)
 	LoginWithEmailCode(ctx context.Context, email string, code string) (*model.LoginPayload, error)
-	Logout(ctx context.Context) (*model.LogoutPayload, error)
+	Logout(ctx context.Context, allDevices *bool) (*model.LogoutPayload, error)
 }
 type QueryResolver interface {
 	AuthStatus(ctx context.Context) (string, error)
@@ -133,7 +135,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		return e.ComplexityRoot.Mutation.Logout(childComplexity), true
+		args, err := ec.field_Mutation_logout_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.Logout(childComplexity, args["allDevices"].(*bool)), true
 	case "Mutation.requestEmailCode":
 		if e.ComplexityRoot.Mutation.RequestEmailCode == nil {
 			break
@@ -166,6 +173,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.RequestEmailCodePayload.Accepted(childComplexity), true
+	case "RequestEmailCodePayload.nextAllowedAt":
+		if e.ComplexityRoot.RequestEmailCodePayload.NextAllowedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RequestEmailCodePayload.NextAllowedAt(childComplexity), true
+	case "RequestEmailCodePayload.retryAfterSeconds":
+		if e.ComplexityRoot.RequestEmailCodePayload.RetryAfterSeconds == nil {
+			break
+		}
+
+		return e.ComplexityRoot.RequestEmailCodePayload.RetryAfterSeconds(childComplexity), true
 
 	case "_Service.sdl":
 		if e.ComplexityRoot._Service.SDL == nil {
@@ -359,6 +378,10 @@ func (ec *executionContext) childFields_RequestEmailCodePayload(ctx context.Cont
 	switch field.Name {
 	case "accepted":
 		return ec.fieldContext_RequestEmailCodePayload_accepted(ctx, field)
+	case "retryAfterSeconds":
+		return ec.fieldContext_RequestEmailCodePayload_retryAfterSeconds(ctx, field)
+	case "nextAllowedAt":
+		return ec.fieldContext_RequestEmailCodePayload_nextAllowedAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type RequestEmailCodePayload", field.Name)
 }
@@ -506,6 +529,20 @@ func (ec *executionContext) field_Mutation_loginWithEmailCode_args(ctx context.C
 		return nil, err
 	}
 	args["code"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_logout_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "allDevices",
+		func(ctx context.Context, v any) (*bool, error) {
+			return ec.unmarshalOBoolean2ᚖbool(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["allDevices"] = arg0
 	return args, nil
 }
 
@@ -790,7 +827,8 @@ func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.
 			return ec.fieldContext_Mutation_logout(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Mutation().Logout(ctx)
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().Logout(ctx, fc.Args["allDevices"].(*bool))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *model.LogoutPayload) graphql.Marshaler {
@@ -800,7 +838,7 @@ func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Mutation_logout(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_logout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -809,6 +847,17 @@ func (ec *executionContext) fieldContext_Mutation_logout(_ context.Context, fiel
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_LogoutPayload(ctx, field)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_logout_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -965,6 +1014,52 @@ func (ec *executionContext) _RequestEmailCodePayload_accepted(ctx context.Contex
 }
 func (ec *executionContext) fieldContext_RequestEmailCodePayload_accepted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("RequestEmailCodePayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _RequestEmailCodePayload_retryAfterSeconds(ctx context.Context, field graphql.CollectedField, obj *model.RequestEmailCodePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RequestEmailCodePayload_retryAfterSeconds(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RetryAfterSeconds, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_RequestEmailCodePayload_retryAfterSeconds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("RequestEmailCodePayload", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _RequestEmailCodePayload_nextAllowedAt(ctx context.Context, field graphql.CollectedField, obj *model.RequestEmailCodePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_RequestEmailCodePayload_nextAllowedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.NextAllowedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_RequestEmailCodePayload_nextAllowedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("RequestEmailCodePayload", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) __Service_sdl(ctx context.Context, field graphql.CollectedField, obj *fedruntime.Service) (ret graphql.Marshaler) {
@@ -2318,6 +2413,13 @@ func (ec *executionContext) _RequestEmailCodePayload(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "retryAfterSeconds":
+			out.Values[i] = ec._RequestEmailCodePayload_retryAfterSeconds(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nextAllowedAt":
+			out.Values[i] = ec._RequestEmailCodePayload_nextAllowedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2752,6 +2854,22 @@ func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (str
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

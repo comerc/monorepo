@@ -17,15 +17,21 @@ tasks:
       - echo "task <name> --summary"
     silent: true
 
-  docker-up:
-    desc: "Run local docker compose stack"
+  docker-start:
+    desc: "Start local docker compose stack"
     cmds:
       - task backend:gateway-compose
       - docker compose up -d --build
 
-  docker-down:
+  docker-stop:
     desc: "Stop local docker compose stack"
     cmd: docker compose down
+
+  docker-restart:
+    desc: "Restart local docker compose stack"
+    cmds:
+      - task docker-stop
+      - task docker-start
 
   kill-port:
     desc: "Kill specific port"

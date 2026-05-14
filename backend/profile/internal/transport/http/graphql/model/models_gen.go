@@ -5,6 +5,11 @@ package model
 type Mutation struct {
 }
 
+type NicknameAvailability struct {
+	Nickname  string `json:"nickname"`
+	Available bool   `json:"available"`
+}
+
 type Profile struct {
 	UserID   string  `json:"userID"`
 	Nickname *string `json:"nickname,omitempty"`

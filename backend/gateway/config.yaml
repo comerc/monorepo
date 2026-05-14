@@ -13,6 +13,13 @@ execution_config:
     path: "/config/router.json"
     watch: false
 
+subgraph_error_propagation:
+  enabled: true
+  mode: "pass-through"
+  rewrite_paths: true
+  omit_locations: true
+  omit_extensions: false
+
 authentication:
   jwt:
     jwks:

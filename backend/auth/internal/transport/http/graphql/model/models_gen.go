@@ -19,5 +19,7 @@ type Query struct {
 }
 
 type RequestEmailCodePayload struct {
-	Accepted bool `json:"accepted"`
+	Accepted          bool    `json:"accepted"`
+	RetryAfterSeconds int     `json:"retryAfterSeconds"`
+	NextAllowedAt     *string `json:"nextAllowedAt,omitempty"`
 }

@@ -25,9 +25,12 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	amqp "github.com/rabbitmq/amqp091-go"
+	redisclient "github.com/redis/go-redis/v9"
+	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	tcrabbitmq "github.com/testcontainers/testcontainers-go/modules/rabbitmq"
 	tcredis "github.com/testcontainers/testcontainers-go/modules/redis"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const (
@@ -47,6 +50,8 @@ type Stack struct {
 	authHTTP    string
 	profileHTTP string
 	gatewayHTTP string
+	redisAddr   string
+	postgresDSN string
 
 	postgres  *tcpostgres.PostgresContainer
 	redis     *tcredis.RedisContainer
@@ -69,7 +74,8 @@ type serviceProcess struct {
 type graphQLResponse struct {
 	Data   map[string]json.RawMessage `json:"data"`
 	Errors []struct {
-		Message string `json:"message"`
+		Message    string          `json:"message"`
+		Extensions json.RawMessage `json:"extensions"`
 	} `json:"errors"`
 }
 
@@ -81,6 +87,22 @@ func (e graphQLErrors) Error() string {
 	return "graphql errors: " + strings.Join(e.messages, "; ")
 }
 
+func expectGraphQLError(err error, message string) error {
+	if err == nil {
+		return fmt.Errorf("expected graphql error %q", message)
+	}
+	var gqlErr graphQLErrors
+	if !errors.As(err, &gqlErr) {
+		return fmt.Errorf("expected graphql error %q, got %w", message, err)
+	}
+	for _, got := range gqlErr.messages {
+		if strings.Contains(got, message) {
+			return nil
+		}
+	}
+	return fmt.Errorf("expected graphql error %q, got %w", message, err)
+}
+
 type capturedMail struct {
 	To   []string
 	Body string
@@ -90,6 +112,12 @@ type jwtPayload struct {
 	TokenID string `json:"jti"`
 	UserID  string `json:"sub"`
 	Email   string `json:"email"`
+}
+
+type requestEmailCodePayload struct {
+	Accepted          bool    `json:"accepted"`
+	RetryAfterSeconds int     `json:"retryAfterSeconds"`
+	NextAllowedAt     *string `json:"nextAllowedAt"`
 }
 
 // GetOrCreateStack создаёт общий black-box stack для BDD-прогона.
@@ -152,7 +180,12 @@ func (s *Stack) startContainers(ctx context.Context) error {
 	}
 	s.redis = redis
 
-	rabbit, err := tcrabbitmq.Run(ctx, rabbitImage)
+	rabbit, err := tcrabbitmq.Run(ctx, rabbitImage,
+		testcontainers.WithWaitStrategyAndDeadline(
+			150*time.Second,
+			wait.ForLog(".*Server startup complete.*").AsRegexp().WithStartupTimeout(150*time.Second),
+		),
+	)
 	if err != nil {
 		return fmt.Errorf("start rabbitmq: %w", err)
 	}
@@ -169,9 +202,17 @@ func (s *Stack) startServices(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if s.postgresDSN, err = s.postgres.ConnectionString(ctx, "sslmode=disable"); err != nil {
+		return err
+	}
 	redisEnv, err := containerRedisEnv(ctx, s.redis)
 	if err != nil {
 		return err
+	}
+	for _, env := range redisEnv {
+		if strings.HasPrefix(env, "REDIS_ADDR=") {
+			s.redisAddr = strings.TrimPrefix(env, "REDIS_ADDR=")
+		}
 	}
 	rabbitURL, err := s.rabbit.AmqpURL(ctx)
 	if err != nil {
@@ -213,7 +254,7 @@ func (s *Stack) startServices(ctx context.Context) error {
 	authProc, err := s.startProcess("auth", "./backend/auth/cmd/server", append(common,
 		"USER_GRPC_ADDR=127.0.0.1:"+userGRPC,
 		"AUTH_JWT_SECRET=bdd-secret",
-		"AUTH_CODE_TTL=10m",
+		"AUTH_CODE_TTL=5m",
 		"SMTP_HOST="+mailHost,
 		"SMTP_PORT="+mailPort,
 		"SMTP_FROM=auth@example.test",
@@ -327,7 +368,7 @@ headers:
 }
 
 func (s *Stack) startProcess(name string, pkg string, env []string) (*serviceProcess, error) {
-	return s.startProcessInDir(name, projectRoot(), "go", []string{"run", pkg}, env)
+	return s.startProcessInDir(name, filepath.Join(projectRoot(), "backend"), "go", []string{"run", "./" + strings.TrimPrefix(pkg, "./backend/")}, env)
 }
 
 func (s *Stack) startProcessInDir(name string, dir string, command string, args []string, env []string) (*serviceProcess, error) {
@@ -446,30 +487,61 @@ func (s *Stack) Close(ctx context.Context) {
 	}
 }
 
+// ResetData очищает shared state между BDD-сценариями.
+func (s *Stack) ResetData(ctx context.Context) error {
+	pool, err := pgxpool.New(ctx, s.postgresDSN)
+	if err != nil {
+		return err
+	}
+	defer pool.Close()
+	if _, err := pool.Exec(ctx, `TRUNCATE profiles, users`); err != nil {
+		return err
+	}
+	rdb := redisclient.NewClient(&redisclient.Options{Addr: s.redisAddr})
+	defer func() {
+		if err := rdb.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "close redis client: %v\n", err)
+		}
+	}()
+	if err := rdb.FlushDB(ctx).Err(); err != nil {
+		return err
+	}
+	s.mailMu.Lock()
+	s.mails = nil
+	s.mailMu.Unlock()
+	return nil
+}
+
 // RequestEmailCode запрашивает email-код через федеративный GraphQL.
 func (s *Stack) RequestEmailCode(ctx context.Context, email string) (int, error) {
 	after := s.MailCount()
-
-	var payload struct {
-		RequestEmailCode struct {
-			Accepted bool `json:"accepted"`
-		} `json:"requestEmailCode"`
-	}
-	err := s.graphQL(ctx, s.gatewayHTTP, "", `mutation ($email: String!) {
-		requestEmailCode(email: $email) { accepted }
-	}`, map[string]any{"email": email}, &payload)
+	payload, err := s.RequestEmailCodePayload(ctx, email)
 	if err != nil {
 		return after, err
 	}
-	if !payload.RequestEmailCode.Accepted {
+	if !payload.Accepted {
 		return after, fmt.Errorf("requestEmailCode was not accepted")
 	}
 	return after, nil
 }
 
-// WaitEmailCode ждёт письмо и возвращает найденный 4-значный код.
+// RequestEmailCodePayload запрашивает email-код и возвращает payload.
+func (s *Stack) RequestEmailCodePayload(ctx context.Context, email string) (*requestEmailCodePayload, error) {
+	var payload struct {
+		RequestEmailCode requestEmailCodePayload `json:"requestEmailCode"`
+	}
+	err := s.graphQL(ctx, s.gatewayHTTP, "", `mutation ($email: String!) {
+		requestEmailCode(email: $email) { accepted retryAfterSeconds nextAllowedAt }
+	}`, map[string]any{"email": email}, &payload)
+	if err != nil {
+		return nil, err
+	}
+	return &payload.RequestEmailCode, nil
+}
+
+// WaitEmailCode ждёт письмо и возвращает найденный 5-значный код.
 func (s *Stack) WaitEmailCode(ctx context.Context, email string, after int) (string, error) {
-	codePattern := regexp.MustCompile(`(?i)access code is (\d{4})`)
+	codePattern := regexp.MustCompile(`(?i)access code is (\d{5})`)
 	deadline := time.Now().Add(15 * time.Second)
 	for time.Now().Before(deadline) {
 		s.mailMu.Lock()
@@ -553,14 +625,38 @@ func (s *Stack) LoginWithEmailCode(ctx context.Context, email string, code strin
 	return payload.LoginWithEmailCode.Token, nil
 }
 
+// ExpectLoginWithEmailCodeRejected проверяет отказ входа по email-коду.
+func (s *Stack) ExpectLoginWithEmailCodeRejected(ctx context.Context, email string, code string, message string) error {
+	var payload struct {
+		LoginWithEmailCode struct {
+			Token string `json:"token"`
+		} `json:"loginWithEmailCode"`
+	}
+	err := s.graphQL(ctx, s.gatewayHTTP, "", `mutation ($email: String!, $code: String!) {
+		loginWithEmailCode(email: $email, code: $code) { token }
+	}`, map[string]any{"email": email, "code": code}, &payload)
+	return expectGraphQLError(err, message)
+}
+
 // Logout отзывает JWT через федеративный GraphQL.
 func (s *Stack) Logout(ctx context.Context, token string) error {
+	return s.logout(ctx, token, false)
+}
+
+// LogoutEverywhere отзывает все JWT пользователя через федеративный GraphQL.
+func (s *Stack) LogoutEverywhere(ctx context.Context, token string) error {
+	return s.logout(ctx, token, true)
+}
+
+func (s *Stack) logout(ctx context.Context, token string, allDevices bool) error {
 	var payload struct {
 		Logout struct {
 			Revoked bool `json:"revoked"`
 		} `json:"logout"`
 	}
-	err := s.graphQL(ctx, s.gatewayHTTP, token, `mutation { logout { revoked } }`, nil, &payload)
+	err := s.graphQL(ctx, s.gatewayHTTP, token, `mutation ($allDevices: Boolean) {
+		logout(allDevices: $allDevices) { revoked }
+	}`, map[string]any{"allDevices": allDevices}, &payload)
 	if err != nil {
 		return err
 	}
@@ -570,16 +666,16 @@ func (s *Stack) Logout(ctx context.Context, token string) error {
 	return nil
 }
 
-// ExpectTokenRejected проверяет, что auth GraphQL больше не принимает JWT.
+// ExpectTokenRejected проверяет, что федеративный GraphQL больше не принимает JWT.
 func (s *Stack) ExpectTokenRejected(ctx context.Context, token string) error {
 	var payload struct {
 		Logout struct {
 			Revoked bool `json:"revoked"`
 		} `json:"logout"`
 	}
-	err := s.graphQL(ctx, s.authHTTP, token, `mutation { logout { revoked } }`, nil, &payload)
+	err := s.graphQL(ctx, s.gatewayHTTP, token, `mutation { logout { revoked } }`, nil, &payload)
 	if err == nil {
-		return fmt.Errorf("revoked token was accepted by auth graphql")
+		return fmt.Errorf("revoked token was accepted by federated graphql")
 	}
 	var gqlErr graphQLErrors
 	if !errors.As(err, &gqlErr) {
@@ -605,6 +701,34 @@ func (s *Stack) SetNickname(ctx context.Context, token string, nickname string) 
 	}`, map[string]any{"nickname": nickname}, &payload)
 }
 
+// ExpectSetNicknameRejected проверяет отказ сохранения nickname.
+func (s *Stack) ExpectSetNicknameRejected(ctx context.Context, token string, nickname string, message string) error {
+	var payload struct {
+		SetNickname struct {
+			Nickname string `json:"nickname"`
+		} `json:"setNickname"`
+	}
+	err := s.graphQL(ctx, s.gatewayHTTP, token, `mutation ($nickname: String!) {
+		setNickname(nickname: $nickname) { nickname }
+	}`, map[string]any{"nickname": nickname}, &payload)
+	return expectGraphQLError(err, message)
+}
+
+// NicknameAvailability проверяет доступность nickname через федеративный GraphQL.
+func (s *Stack) NicknameAvailability(ctx context.Context, token string, nickname string) (bool, error) {
+	var payload struct {
+		NicknameAvailability struct {
+			Available bool `json:"available"`
+		} `json:"nicknameAvailability"`
+	}
+	if err := s.graphQL(ctx, s.gatewayHTTP, token, `query ($nickname: String!) {
+		nicknameAvailability(nickname: $nickname) { available }
+	}`, map[string]any{"nickname": nickname}, &payload); err != nil {
+		return false, err
+	}
+	return payload.NicknameAvailability.Available, nil
+}
+
 // MyNickname читает nickname текущего пользователя через федеративный GraphQL.
 func (s *Stack) MyNickname(ctx context.Context, token string) (string, error) {
 	var payload struct {
@@ -616,6 +740,68 @@ func (s *Stack) MyNickname(ctx context.Context, token string) (string, error) {
 		return "", err
 	}
 	return payload.MyProfile.Nickname, nil
+}
+
+// ExpectMyProfileRejected проверяет отказ чтения профиля.
+func (s *Stack) ExpectMyProfileRejected(ctx context.Context, token string, message string) error {
+	var payload struct {
+		MyProfile struct {
+			Nickname string `json:"nickname"`
+		} `json:"myProfile"`
+	}
+	err := s.graphQL(ctx, s.gatewayHTTP, token, `query { myProfile { nickname } }`, nil, &payload)
+	return expectGraphQLError(err, message)
+}
+
+// ExpireEmailCodes принудительно истекает email-коды в BDD окружении.
+func (s *Stack) ExpireEmailCodes(ctx context.Context, email string) error {
+	rdb := redisclient.NewClient(&redisclient.Options{Addr: s.redisAddr})
+	defer func() {
+		if err := rdb.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "close redis client: %v\n", err)
+		}
+	}()
+	codes, err := rdb.SMembers(ctx, fmt.Sprintf("auth:codes:%s", email)).Result()
+	if err != nil {
+		return err
+	}
+	keys := []string{fmt.Sprintf("auth:codes:%s", email)}
+	for _, code := range codes {
+		keys = append(keys, fmt.Sprintf("auth:code:%s:%s", email, code))
+	}
+	return rdb.Del(ctx, keys...).Err()
+}
+
+// ForceEmailCodeRequestAllowed сдвигает cooldown так, чтобы следующий запрос был доступен.
+func (s *Stack) ForceEmailCodeRequestAllowed(ctx context.Context, email string) error {
+	rdb := redisclient.NewClient(&redisclient.Options{Addr: s.redisAddr})
+	defer func() {
+		if err := rdb.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "close redis client: %v\n", err)
+		}
+	}()
+	key := fmt.Sprintf("auth:code-cooldown:%s", email)
+	raw, err := rdb.Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redisclient.Nil) {
+			return nil
+		}
+		return err
+	}
+	var cooldown struct {
+		Count         int   `json:"count"`
+		NextAllowedAt int64 `json:"nextAllowedAt"`
+		ResetAt       int64 `json:"resetAt"`
+	}
+	if err := json.Unmarshal([]byte(raw), &cooldown); err != nil {
+		return err
+	}
+	cooldown.NextAllowedAt = time.Now().Add(-time.Second).Unix()
+	updated, err := json.Marshal(cooldown)
+	if err != nil {
+		return err
+	}
+	return rdb.Set(ctx, key, updated, time.Until(time.Unix(cooldown.ResetAt, 0))).Err()
 }
 
 func (s *Stack) waitGatewayGraphQL(ctx context.Context) error {
@@ -685,6 +871,7 @@ func (s *Stack) graphQL(ctx context.Context, url string, token string, query str
 		messages := make([]string, 0, len(gqlResp.Errors))
 		for _, gqlErr := range gqlResp.Errors {
 			messages = append(messages, gqlErr.Message)
+			messages = append(messages, nestedGraphQLErrorMessages(gqlErr.Extensions)...)
 		}
 		return graphQLErrors{messages: messages}
 	}
@@ -696,6 +883,27 @@ func (s *Stack) graphQL(ctx context.Context, url string, token string, query str
 		return err
 	}
 	return json.Unmarshal(data, out)
+}
+
+func nestedGraphQLErrorMessages(raw json.RawMessage) []string {
+	if len(raw) == 0 {
+		return nil
+	}
+	var extensions struct {
+		Errors []struct {
+			Message string `json:"message"`
+		} `json:"errors"`
+	}
+	if err := json.Unmarshal(raw, &extensions); err != nil {
+		return nil
+	}
+	messages := make([]string, 0, len(extensions.Errors))
+	for _, nestedErr := range extensions.Errors {
+		if nestedErr.Message != "" {
+			messages = append(messages, nestedErr.Message)
+		}
+	}
+	return messages
 }
 
 func containerPostgresEnv(ctx context.Context, container *tcpostgres.PostgresContainer) ([]string, error) {

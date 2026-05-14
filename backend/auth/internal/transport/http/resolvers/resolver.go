@@ -7,9 +7,10 @@ import (
 )
 
 type authService interface {
-	RequestCode(ctx context.Context, email string) error
+	RequestCode(ctx context.Context, email string) (*domain.RequestCodeResult, error)
 	LoginByCode(ctx context.Context, email string, code string) (*domain.Session, error)
 	Logout(ctx context.Context, token string) error
+	LogoutEverywhere(ctx context.Context, token string) error
 }
 
 // Resolver связывает GraphQL-схему с auth-сервисом.

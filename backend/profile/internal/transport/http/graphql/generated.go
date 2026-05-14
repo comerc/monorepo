@@ -47,16 +47,22 @@ type ComplexityRoot struct {
 		SetNickname func(childComplexity int, nickname string) int
 	}
 
+	NicknameAvailability struct {
+		Available func(childComplexity int) int
+		Nickname  func(childComplexity int) int
+	}
+
 	Profile struct {
 		Nickname func(childComplexity int) int
 		UserID   func(childComplexity int) int
 	}
 
 	Query struct {
-		MyProfile          func(childComplexity int) int
-		ProfileStatus      func(childComplexity int) int
-		__resolve__service func(childComplexity int) int
-		__resolve_entities func(childComplexity int, representations []map[string]any) int
+		MyProfile            func(childComplexity int) int
+		NicknameAvailability func(childComplexity int, nickname string) int
+		ProfileStatus        func(childComplexity int) int
+		__resolve__service   func(childComplexity int) int
+		__resolve_entities   func(childComplexity int, representations []map[string]any) int
 	}
 
 	_Service struct {
@@ -73,6 +79,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	ProfileStatus(ctx context.Context) (string, error)
 	MyProfile(ctx context.Context) (*model.Profile, error)
+	NicknameAvailability(ctx context.Context, nickname string) (*model.NicknameAvailability, error)
 }
 
 type executableSchema graphql.ExecutableSchemaState[ResolverRoot, DirectiveRoot, ComplexityRoot]
@@ -113,6 +120,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.SetNickname(childComplexity, args["nickname"].(string)), true
 
+	case "NicknameAvailability.available":
+		if e.ComplexityRoot.NicknameAvailability.Available == nil {
+			break
+		}
+
+		return e.ComplexityRoot.NicknameAvailability.Available(childComplexity), true
+	case "NicknameAvailability.nickname":
+		if e.ComplexityRoot.NicknameAvailability.Nickname == nil {
+			break
+		}
+
+		return e.ComplexityRoot.NicknameAvailability.Nickname(childComplexity), true
+
 	case "Profile.nickname":
 		if e.ComplexityRoot.Profile.Nickname == nil {
 			break
@@ -132,6 +152,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.MyProfile(childComplexity), true
+	case "Query.nicknameAvailability":
+		if e.ComplexityRoot.Query.NicknameAvailability == nil {
+			break
+		}
+
+		args, err := ec.field_Query_nicknameAvailability_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.NicknameAvailability(childComplexity, args["nickname"].(string)), true
 	case "Query.profileStatus":
 		if e.ComplexityRoot.Query.ProfileStatus == nil {
 			break
@@ -333,6 +364,16 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
 
+func (ec *executionContext) childFields_NicknameAvailability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "nickname":
+		return ec.fieldContext_NicknameAvailability_nickname(ctx, field)
+	case "available":
+		return ec.fieldContext_NicknameAvailability_available(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type NicknameAvailability", field.Name)
+}
+
 func (ec *executionContext) childFields_Profile(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "userID":
@@ -523,6 +564,20 @@ func (ec *executionContext) field_Query__entities_args(ctx context.Context, rawA
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_nicknameAvailability_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "nickname",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["nickname"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field___Directive_args_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -675,6 +730,52 @@ func (ec *executionContext) fieldContext_Mutation_setNickname(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _NicknameAvailability_nickname(ctx context.Context, field graphql.CollectedField, obj *model.NicknameAvailability) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NicknameAvailability_nickname(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Nickname, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_NicknameAvailability_nickname(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("NicknameAvailability", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _NicknameAvailability_available(ctx context.Context, field graphql.CollectedField, obj *model.NicknameAvailability) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_NicknameAvailability_available(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Available, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_NicknameAvailability_available(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("NicknameAvailability", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
 func (ec *executionContext) _Profile_userID(ctx context.Context, field graphql.CollectedField, obj *model.Profile) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -772,6 +873,50 @@ func (ec *executionContext) fieldContext_Query_myProfile(_ context.Context, fiel
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Profile(ctx, field)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_nicknameAvailability(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_nicknameAvailability(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().NicknameAvailability(ctx, fc.Args["nickname"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *model.NicknameAvailability) graphql.Marshaler {
+			return ec.marshalNNicknameAvailability2ᚖgithubᚗcomᚋpureᚑgolangᚋmonorepoᚋbackendᚋprofileᚋinternalᚋtransportᚋhttpᚋgraphqlᚋmodelᚐNicknameAvailability(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_nicknameAvailability(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_NicknameAvailability(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_nicknameAvailability_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -2151,6 +2296,50 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var nicknameAvailabilityImplementors = []string{"NicknameAvailability"}
+
+func (ec *executionContext) _NicknameAvailability(ctx context.Context, sel ast.SelectionSet, obj *model.NicknameAvailability) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, nicknameAvailabilityImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NicknameAvailability")
+		case "nickname":
+			out.Values[i] = ec._NicknameAvailability_nickname(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "available":
+			out.Values[i] = ec._NicknameAvailability_available(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var profileImplementors = []string{"Profile", "_Entity"}
 
 func (ec *executionContext) _Profile(ctx context.Context, sel ast.SelectionSet, obj *model.Profile) graphql.Marshaler {
@@ -2243,6 +2432,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_myProfile(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "nicknameAvailability":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_nicknameAvailability(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2747,6 +2958,20 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNNicknameAvailability2githubᚗcomᚋpureᚑgolangᚋmonorepoᚋbackendᚋprofileᚋinternalᚋtransportᚋhttpᚋgraphqlᚋmodelᚐNicknameAvailability(ctx context.Context, sel ast.SelectionSet, v model.NicknameAvailability) graphql.Marshaler {
+	return ec._NicknameAvailability(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNNicknameAvailability2ᚖgithubᚗcomᚋpureᚑgolangᚋmonorepoᚋbackendᚋprofileᚋinternalᚋtransportᚋhttpᚋgraphqlᚋmodelᚐNicknameAvailability(ctx context.Context, sel ast.SelectionSet, v *model.NicknameAvailability) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._NicknameAvailability(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProfile2githubᚗcomᚋpureᚑgolangᚋmonorepoᚋbackendᚋprofileᚋinternalᚋtransportᚋhttpᚋgraphqlᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v model.Profile) graphql.Marshaler {

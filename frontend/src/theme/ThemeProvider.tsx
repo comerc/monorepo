@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { ConfigProvider, theme } from 'antd'
+import { App as AntdApp, ConfigProvider, theme } from 'antd'
 import ruRU from 'antd/locale/ru_RU'
 
 export type ThemeMode = 'light' | 'auto' | 'dark'
@@ -73,7 +73,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           zeroRuntime: true,
         }}
       >
-        {children}
+        <AntdApp>{children}</AntdApp>
       </ConfigProvider>
     </ThemeContext.Provider>
   )

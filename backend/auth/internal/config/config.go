@@ -14,7 +14,7 @@ import (
 // Config описывает конфигурацию auth-сервиса из переменных окружения.
 type Config struct {
 	Environment string        `envconfig:"ENVIRONMENT" default:"development"`
-	CodeTTL     time.Duration `envconfig:"AUTH_CODE_TTL" default:"10m"`
+	CodeTTL     time.Duration `envconfig:"AUTH_CODE_TTL" default:"5m"`
 	JWTSecret   string        `envconfig:"AUTH_JWT_SECRET" default:"development-secret"`
 	UserGRPC    string        `envconfig:"USER_GRPC_ADDR" default:"localhost:50051"`
 	Monitoring  monitoring.Config

@@ -66,7 +66,7 @@ services:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
       USER_GRPC_ADDR: user-service:50051
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-development-secret}
-      AUTH_CODE_TTL: 10m
+      AUTH_CODE_TTL: 5m
       SMTP_HOST: mailpit
       SMTP_PORT: "1025"
       SMTP_FROM: auth@example.test

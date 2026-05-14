@@ -1,6 +1,6 @@
-- gateway - cosmo
-- промежуточный crud на grpc
-- архитектурная солянка в сервисе
-- doc.go - Example
+- [x] gateway - cosmo
+- [x] промежуточный crud на grpc
+- [x] архитектурная солянка в сервисе
+- [x] doc.go - Example
 - [x] подключить level85
-
+- [ ] CI
