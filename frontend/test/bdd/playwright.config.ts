@@ -17,7 +17,7 @@ export default defineConfig({
   testDir,
   fullyParallel: false,
   workers: 1,
-  reporter: [['list']],
+  reporter: [[path.resolve(configDir, 'support/bdd-list-reporter.ts')]],
   use: {
     baseURL: 'http://127.0.0.1:4173',
     trace: 'on-first-retry',
