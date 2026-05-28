@@ -59,6 +59,13 @@ Feature: Профиль пользователя
     Then пользователь видит ошибку nickname "nickname слишком короткий"
 
   @browser
+  Scenario: 01I_browser_stale_session_redirects_to_login
+    Given пользователь вошёл по email "user@example.com"
+    And данные пользователя удалены на сервере
+    When пользователь открывает профиль
+    Then пользователь видит форму входа без технической ошибки
+
+  @browser
   Scenario: 02_show_saved_nickname_in_header
     Given пользователь вошёл по email "user@example.com" с nickname "aka"
     Then шапка профиля показывает nickname "aka"

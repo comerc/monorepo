@@ -4,6 +4,7 @@ import { LoginPage } from "./pages/login.page";
 import { ProfilePage } from "./pages/profile.page";
 import {
   createUserWithNickname,
+  deleteBackendUserData,
   expectTokenRevoked,
   loginByActualEmail,
   loginByEmail,
@@ -267,6 +268,10 @@ Given(
   },
 );
 
+Given("данные пользователя удалены на сервере", async () => {
+  await deleteBackendUserData();
+});
+
 Then(
   "пользователь видит ошибку nickname {string}",
   async ({ page }, message: string) => {
@@ -276,6 +281,10 @@ Then(
 
 When("пользователь открывает профиль без входа", async ({ page }) => {
   await new ProfilePage(page).openWithoutSession();
+});
+
+When("пользователь открывает профиль", async ({ page }) => {
+  await page.goto("/profile");
 });
 
 Then(

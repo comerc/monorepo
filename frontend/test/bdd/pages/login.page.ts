@@ -79,6 +79,11 @@ export class LoginPage {
     await expect(
       this.page.getByRole("heading", { name: "Вход" }),
     ).toBeVisible();
-    await expect(this.page.getByText("unauthenticated")).toBeHidden();
+    await expect(this.page).toHaveURL(/\/login(?:\?|$)/);
+    await expect(
+      this.page.getByText(
+        /unauthenticated|rpc error|user not found|DOWNSTREAM_SERVICE_ERROR/,
+      ),
+    ).toBeHidden();
   }
 }

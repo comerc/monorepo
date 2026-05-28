@@ -1,10 +1,11 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Checkbox, Layout, Modal, Space, Typography } from "antd";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/authStore";
 import { graphqlSdk } from "../graphql/client";
+import { isSessionInvalidError } from "../graphql/errors";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 const { Header, Content, Sider } = Layout;
@@ -12,6 +13,7 @@ const { Text } = Typography;
 
 export default function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [logoutEverywhere, setLogoutEverywhere] = useState(false);
@@ -23,21 +25,27 @@ export default function AppLayout() {
         .MyProfile()
         .then((data) => data.myProfile),
     enabled: Boolean(auth.token),
+    retry: (failureCount, error) =>
+      !isSessionInvalidError(error) && failureCount < 3,
   });
 
   const displayName =
     profileQuery.data?.nickname || auth.user?.nickname || auth.user?.email;
 
   useEffect(() => {
-    if (
-      profileQuery.isError &&
-      profileQuery.error instanceof Error &&
-      profileQuery.error.message.includes("unauthenticated")
-    ) {
+    if (profileQuery.isError && isSessionInvalidError(profileQuery.error)) {
+      const next = encodeURIComponent(location.pathname + location.search);
       auth.logout();
-      navigate("/login?next=%2Fprofile", { replace: true });
+      navigate(`/login?next=${next}`, { replace: true });
     }
-  }, [auth, navigate, profileQuery.error, profileQuery.isError]);
+  }, [
+    auth,
+    location.pathname,
+    location.search,
+    navigate,
+    profileQuery.error,
+    profileQuery.isError,
+  ]);
 
   const handleLogout = async () => {
     try {

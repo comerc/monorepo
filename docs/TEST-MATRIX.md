@@ -116,6 +116,7 @@ Feature: `features/01_identity/02_profile.feature`
 | IDENTITY-F-031 | `01F_profile_requires_authenticated_user` | `@api` | Активен | Нет |
 | IDENTITY-F-032 | `01G_browser_profile_without_login_opens_login_form` | `@browser` | Нет | Активен |
 | IDENTITY-F-033 | `01H_browser_set_nickname_shows_short_error` | `@browser` | Нет | Активен |
+| IDENTITY-F-039 | `01I_browser_stale_session_redirects_to_login` | `@browser` | Нет | Активен |
 | IDENTITY-F-034 | `02_show_saved_nickname_in_header` | `@browser` | Нет | Активен |
 | IDENTITY-F-035 | `03_check_nickname_availability_after_debounce` | `@browser` | Нет | Активен |
 | IDENTITY-F-036 | `03A_check_nickname_availability_not_started_for_two_chars` | `@browser` | Нет | Активен |
@@ -148,7 +149,7 @@ Steps: `frontend/test/bdd/steps_01_identity.ts`
 | ID | Тест | Статус |
 |----|------|--------|
 | BROWSER-BDD-IDENTITY-001 | `01_email_login.feature` сценарии с `@browser` | 8 активных |
-| BROWSER-BDD-IDENTITY-002 | `02_profile.feature` сценарии с `@browser` | 9 активных |
+| BROWSER-BDD-IDENTITY-002 | `02_profile.feature` сценарии с `@browser` | 10 активных |
 
 ---
 
@@ -175,7 +176,7 @@ Steps: `frontend/test/bdd/steps_01_identity.ts`
 | `backend/user` | 0 | BDD identity | 0 | 0 |
 | `frontend/src` | 0 | 0 | BDD identity | 0 |
 | `backend/test/smoke` | 0 | 0 | 0 | 0 |
-| **Итого** | **15** | **20 API BDD-сценария** | **17 Browser BDD-сценариев** | **0** |
+| **Итого** | **15** | **20 API BDD-сценария** | **18 Browser BDD-сценариев** | **0** |
 
 ---
 

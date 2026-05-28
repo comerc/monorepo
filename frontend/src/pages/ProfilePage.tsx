@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { useAuth } from "../auth/authStore";
 import { graphqlSdk } from "../graphql/client";
+import { isSessionInvalidError } from "../graphql/errors";
 
 const { Text, Title } = Typography;
 
@@ -40,6 +41,8 @@ export default function ProfilePage() {
         .MyProfile()
         .then((data) => data.myProfile),
     enabled: Boolean(auth.token),
+    retry: (failureCount, error) =>
+      !isSessionInvalidError(error) && failureCount < 3,
   });
 
   useEffect(() => {
@@ -50,6 +53,12 @@ export default function ProfilePage() {
       });
     }
   }, [auth.user?.email, form, profileQuery.data]);
+
+  useEffect(() => {
+    if (profileQuery.isError) {
+      console.error("Profile loading failed", profileQuery.error);
+    }
+  }, [profileQuery.error, profileQuery.isError]);
 
   useEffect(() => {
     const nickname = String(watchedNickname ?? "").trim();
@@ -141,7 +150,7 @@ export default function ProfilePage() {
         ) : profileQuery.isError ? (
           <Alert
             message="Не удалось загрузить профиль"
-            description={(profileQuery.error as Error).message}
+            description="Попробуйте обновить страницу или войти заново."
             type="error"
           />
         ) : (

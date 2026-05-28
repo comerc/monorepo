@@ -63,21 +63,25 @@ interface MailpitMessage extends MailpitSummary {
 
 export async function resetLiveBackendState() {
   await Promise.all([
-    execFileAsync("docker", [
-      "exec",
-      "monorepo-postgres",
-      "psql",
-      "-U",
-      "monorepo",
-      "-d",
-      "monorepo",
-      "-c",
-      "TRUNCATE profiles, users;",
-    ]),
+    deleteBackendUserData(),
     execFileAsync("docker", ["exec", "monorepo-redis", "redis-cli", "FLUSHDB"]),
     fetch(`${mailpitEndpoint}/api/v1/messages`, { method: "DELETE" }).catch(
       () => undefined,
     ),
+  ]);
+}
+
+export async function deleteBackendUserData() {
+  await execFileAsync("docker", [
+    "exec",
+    "monorepo-postgres",
+    "psql",
+    "-U",
+    "monorepo",
+    "-d",
+    "monorepo",
+    "-c",
+    "TRUNCATE profiles, users;",
   ]);
 }
 
